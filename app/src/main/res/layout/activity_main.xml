@@ -12,17 +12,120 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:padding="20dp"
-        android:text="Auto-évaluation du conducteur"/>
+        android:text="Auto-évaluation de l'alcoolémie du conducteur"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:padding="20dp"
-        android:text="Nombre de verres : "/>
+        android:text="Je suis biologiquement :"/>
 
-    <NumberPicker
+    <RadioGroup
+        android:id="@+id/sex_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+        <RadioButton
+            android:id="@+id/male_sex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Un homme"/>
+
+        <RadioButton
+            android:id="@+id/female_sex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Une femme"/>
+    </RadioGroup>
+
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Je pèse : (en kg)"/>
+
+    <EditText
+        android:id="@+id/weight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:inputType="number"
+        android:hint="70"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Nombre de bières (25 cL, 7°) consommées :"/>
+
+    <EditText
+        android:id="@+id/beers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:inputType="number"
+        android:hint="0"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Nombre de verres de vin (10 cL, 12°) consommés :"/>
+
+    <EditText
+        android:id="@+id/wine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:inputType="number"
+        android:hint="0"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Nombre de spiritueux (3 cL, 40°) consommés :"/>
+
+    <EditText
+        android:id="@+id/spirits"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:inputType="number"
+        android:hint="0"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="J'ai consommé de la drogue : "/>
+
+    <RadioGroup
+        android:id="@+id/drugs_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+        <RadioButton
+            android:id="@+id/yes_drugs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Oui"/>
+
+        <RadioButton
+            android:id="@+id/no_drugs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Non"/>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Évaluer"/>
 </LinearLayout>
