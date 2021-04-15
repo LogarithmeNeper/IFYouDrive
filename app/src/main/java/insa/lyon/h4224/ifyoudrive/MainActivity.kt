@@ -21,6 +21,10 @@ class MainActivity : AppCompatActivity() {
 
 
         mSubmitButton.setOnClickListener {
+            // TODO : Faire la gestion d'erreur si un champ de valeur n'est pas rempli
+            // TODO : Faire la gestion d'erreur si un bouton radio n'est pas pressé
+            // TODO : Faire la gestion pour la drogue
+
             val sexId: Int = mSexGroup.checkedRadioButtonId;
             var coefDiffusion: Double = 0.0;
 
