@@ -2,8 +2,6 @@ package insa.lyon.h4224.ifyoudrive
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.InputType
-import android.view.View
 import android.widget.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,15 +15,18 @@ class MainActivity : AppCompatActivity() {
         val mWine: EditText = findViewById(R.id.wine)
         val mSpirits: EditText = findViewById(R.id.spirits)
         val mDrugsGroup: RadioGroup = findViewById(R.id.drugs_group)
-        val mSubmitButton: Button = findViewById(R.id.submit_button)
+        val mEvaluateButton: Button = findViewById(R.id.evaluate_button)
+        val mDriveButton: Button = findViewById(R.id.to_drive_button)
 
-        mSubmitButton.setOnClickListener {
+        mDriveButton.isEnabled = false
+        
+        mEvaluateButton.setOnClickListener {
             try {
                 val sexId: Int = mSexGroup.checkedRadioButtonId
                 var coefDiffusion: Double = 0.0
 
-                val checkedButton: RadioButton = findViewById(sexId)
-                if ("${checkedButton.text}" == "Un homme") coefDiffusion = 0.7 else coefDiffusion =
+                val checkedSexButton: RadioButton = findViewById(sexId)
+                if ("${checkedSexButton.text}" == "Un homme") coefDiffusion = 0.7 else coefDiffusion =
                     0.6
 
                 val weight: Int = mWeight.text.toString().toInt()
@@ -39,11 +40,21 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(this@MainActivity, "Estimation : $estimation",
                     Toast.LENGTH_SHORT).show()
+
+                val drugsId: Int = mSexGroup.checkedRadioButtonId
+                val checkedDrugsButton: RadioButton = findViewById(drugsId)
+
+                mDriveButton.isEnabled = (estimation < 0.5) //&& ("${checkedDrugsButton.text}" == "Non")
             }
             catch(e: Exception) {
                 Toast.makeText(this@MainActivity, "Merci de remplir tous les champs !",
                     Toast.LENGTH_SHORT).show()
             }
+        }
+        
+        mDriveButton.setOnClickListener {
+            Toast.makeText(this@MainActivity, "You passed !",
+                Toast.LENGTH_SHORT).show()
         }
     }
 }

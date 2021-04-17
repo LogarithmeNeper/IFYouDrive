@@ -123,9 +123,16 @@
     </RadioGroup>
 
     <Button
-        android:id="@+id/submit_button"
+        android:id="@+id/evaluate_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Évaluer"/>
+
+    <Button
+        android:id="@+id/to_drive_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Drive me !"/>
 </LinearLayout>
