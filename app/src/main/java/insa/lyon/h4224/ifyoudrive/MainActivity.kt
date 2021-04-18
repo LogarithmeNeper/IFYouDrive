@@ -36,15 +36,22 @@ class MainActivity : AppCompatActivity() {
 
                 val totalVolumeAlcool =
                     nbBeers * 250 * 0.07 + nbWine * 100 * 0.12 + nbSpirits * 30 * 0.4
-                val estimation = (totalVolumeAlcool * 0.8) / (coefDiffusion * weight)
 
-                Toast.makeText(this@MainActivity, "Estimation : $estimation",
-                    Toast.LENGTH_SHORT).show()
+                if(weight != 0) {
+                    val estimation = (totalVolumeAlcool * 0.8) / (coefDiffusion * weight)
 
-                val drugsId: Int = mSexGroup.checkedRadioButtonId
-                val checkedDrugsButton: RadioButton = findViewById(drugsId)
+                    Toast.makeText(this@MainActivity, "Estimation : $estimation",
+                        Toast.LENGTH_SHORT).show()
 
-                mDriveButton.isEnabled = (estimation < 0.5) //&& ("${checkedDrugsButton.text}" == "Non")
+                    val drugsId: Int = mSexGroup.checkedRadioButtonId
+                    val checkedDrugsButton: RadioButton = findViewById(drugsId)
+
+                    mDriveButton.isEnabled = (estimation < 0.5) //&& ("${checkedDrugsButton.text}" == "Non")
+                }
+                else {
+                    Toast.makeText(this@MainActivity, "La masse ne peut pas être nulle !",
+                        Toast.LENGTH_SHORT).show()
+                }
             }
             catch(e: Exception) {
                 Toast.makeText(this@MainActivity, "Merci de remplir tous les champs !",
