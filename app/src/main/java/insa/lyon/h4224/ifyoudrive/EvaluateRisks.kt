@@ -47,7 +47,7 @@ class EvaluateRisks : AppCompatActivity() {
         driveButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
 
         driveButton.setOnClickListener {
-            val intentToDrive = Intent(this@EvaluateRisks, Driving::class.java)
+            val intentToDrive = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
             startActivity(intentToDrive)
         }
 
