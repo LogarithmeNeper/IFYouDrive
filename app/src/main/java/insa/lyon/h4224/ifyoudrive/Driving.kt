@@ -1,59 +1,42 @@
 package insa.lyon.h4224.ifyoudrive
 
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.StrictMode
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import org.osmdroid.config.Configuration.*
-
+import android.Manifest
 
 class Driving : AppCompatActivity() {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private lateinit var map : MapView;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
-        // TODO : handle permissions
-        getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        setContentView(R.layout.activity_main);
+        if(hasPermissions()) {
+            Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+            setContentView(R.layout.activity_main);
 
-        map = findViewById<MapView>(R.id.mapview)
-        map.setTileSource(TileSourceFactory.MAPNIK);
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        val permissionsToRequest = ArrayList<String>();
-        var i = 0;
-        while (i < grantResults.size) {
-            permissionsToRequest.add(permissions[i]);
-            i++;
-        }
-        if (permissionsToRequest.size > 0) {
-            ActivityCompat.requestPermissions(
-                this,
-                permissionsToRequest.toTypedArray(),
-                REQUEST_PERMISSIONS_REQUEST_CODE);
+            map = findViewById<MapView>(R.id.mapview)
+            map.setTileSource(TileSourceFactory.MAPNIK);
         }
     }
 
-
-    /*private fun requestPermissionsIfNecessary(String[] permissions) {
-        ArrayList<String> permissionsToRequest = new ArrayList<>();
-        for (String permission : permissions) {
-        if (ContextCompat.checkSelfPermission(this, permission)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            permissionsToRequest.add(permission);
-        }
+    private fun hasPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) ==
+                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) ==
+                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) ==
+                PackageManager.PERMISSION_GRANTED
     }
-        if (permissionsToRequest.size() > 0) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    permissionsToRequest.toArray(new String[0]),
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }*/
 }
