@@ -3,6 +3,7 @@ package insa.lyon.h4224.ifyoudrive
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.widget.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +30,10 @@ class MainActivity : AppCompatActivity() {
                     0.6
 
                 val weight: Int = mWeight.text.toString().toInt()
+
+                if (TextUtils.isEmpty(mBeers.text)) {mBeers.setText("0")}
+                if (TextUtils.isEmpty(mWine.text)) {mWine.setText("0")}
+                if (TextUtils.isEmpty(mSpirits.text)) {mSpirits.setText("0")}
                 val nbBeers: Int = mBeers.text.toString().toInt()
                 val nbWine: Int = mWine.text.toString().toInt()
                 val nbSpirits: Int = mSpirits.text.toString().toInt()

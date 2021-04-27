@@ -19,7 +19,7 @@ class EvaluateRisks : AppCompatActivity() {
         val drugsField: TextView = findViewById(R.id.drugs_field)
         val risksAlcoholField: TextView = findViewById(R.id.risks_alcohol)
         val risksDrugsField: TextView = findViewById(R.id.risks_drugs)
-        val driveButton: Button = findViewById(R.id.drive_button)
+        val reactivityButton: Button = findViewById(R.id.reactivity_button)
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
 
@@ -44,11 +44,11 @@ class EvaluateRisks : AppCompatActivity() {
             risksDrugsField.text = "La conduite sous l'emprise de stupéfiants constitue un délit passible de 4500€ d'amende, d'une peine de 2 ans de prison, ainsi que d'un retrait de 6 points sur le permis de conduire automatique. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
         }
 
-        driveButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
+        reactivityButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
 
-        driveButton.setOnClickListener {
-            val intentToDrive = Intent(this@EvaluateRisks, Driving::class.java)
-            startActivity(intentToDrive)
+        reactivityButton.setOnClickListener {
+            val intentToReactivity = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
+            startActivity(intentToReactivity)
         }
 
         infoAlcohol.setOnClickListener {

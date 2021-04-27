@@ -17,10 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive"
         android:networkSecurityConfig="@xml/network_security_config">
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".Driving
+        <activity android:name=".EvaluateReaction"></activity>
+        <activity android:name=".Driving" />
         <activity android:name=".EvaluateRisks" />
         <activity
-            android:name=".Driving"
+            android:name=".MainActivity"
             android:label="IFYouDrive">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
