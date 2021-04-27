@@ -12,18 +12,17 @@ import android.Manifest
 import org.osmdroid.util.GeoPoint
 
 class Driving : AppCompatActivity() {
-    private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
-            Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-            setContentView(R.layout.activity_driving);
+        super.onCreate(savedInstanceState)
+            Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+            setContentView(R.layout.activity_driving)
 
             val map : MapView = findViewById(R.id.mapview)
-            map.setTileSource(TileSourceFactory.MAPNIK);
+            map.setTileSource(TileSourceFactory.MAPNIK)
 
             val mapController = map.controller
             mapController.setZoom(9.5)
-            val startPoint = GeoPoint(48.8583, 2.2944);
-            mapController.setCenter(startPoint);
+            val startPoint = GeoPoint(48.8583, 2.2944)
+            mapController.setCenter(startPoint)
     }
 }
