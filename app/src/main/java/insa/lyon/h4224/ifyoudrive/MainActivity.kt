@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         mEvaluateButton.setOnClickListener {
             try {
                 val sexId: Int = mSexGroup.checkedRadioButtonId
-                var coefDiffusion: Double = 0.0
+                var coefDiffusion: Double
 
                 val checkedSexButton: RadioButton = findViewById(sexId)
                 if ("${checkedSexButton.text}" == "Un homme") coefDiffusion = 0.7 else coefDiffusion =
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
                 val thresholdId: Int = mThresholdGroup.checkedRadioButtonId
                 val checkedThresholdButton: RadioButton = findViewById(thresholdId)
-                var threshold: Double = 0.0
+                var threshold: Double
                 if ("${checkedThresholdButton.text}" == "Oui") threshold = 0.2 else threshold =
                     0.5
 
