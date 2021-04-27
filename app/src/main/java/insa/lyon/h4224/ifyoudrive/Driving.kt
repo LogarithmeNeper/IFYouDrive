@@ -12,16 +12,16 @@ import android.Manifest
 
 class Driving : AppCompatActivity() {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
-    private lateinit var map : MapView;
+    //private lateinit var map : MapView;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
-        if(hasPermissions()) {
+        //if(hasPermissions()) {
             Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity_driving);
 
-            map = findViewById<MapView>(R.id.mapview)
+            val map : MapView = findViewById(R.id.mapview)
             map.setTileSource(TileSourceFactory.MAPNIK);
-        }
+        //}
     }
 
     private fun hasPermissions(): Boolean {
