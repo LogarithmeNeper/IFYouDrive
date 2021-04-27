@@ -15,7 +15,6 @@ class Driving : AppCompatActivity() {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
-        //if(hasPermissions()) {
             Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
             setContentView(R.layout.activity_driving);
 
@@ -26,22 +25,5 @@ class Driving : AppCompatActivity() {
             mapController.setZoom(9.5)
             val startPoint = GeoPoint(48.8583, 2.2944);
             mapController.setCenter(startPoint);
-        //}
-    }
-
-    private fun hasPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) ==
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) ==
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) ==
-                PackageManager.PERMISSION_GRANTED
     }
 }
