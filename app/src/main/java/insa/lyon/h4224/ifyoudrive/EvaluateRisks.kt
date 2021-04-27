@@ -53,7 +53,7 @@ class EvaluateRisks : AppCompatActivity() {
             startActivity(intentToReactivity)
         }
 
-        reactivityButton.setOnClickListener {
+        skipToDrive.setOnClickListener {
             val intentToDrive = Intent(this@EvaluateRisks, Driving::class.java)
             startActivity(intentToDrive)
         }
