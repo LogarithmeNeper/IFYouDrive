@@ -17,9 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive"
         android:networkSecurityConfig="@xml/network_security_config">
-        <activity android:name=".EvaluateReaction" />
-        <activity android:name=".Driving" />
-        <activity android:name=".EvaluateRisks" />
+        <activity
+            android:name=".EvaluateReaction"
+            android:parentActivityName=".EvaluateRisks"/>
+        <activity
+            android:name=".Driving"
+            android:parentActivityName=".EvaluateReaction"/>
+        <activity
+            android:name=".EvaluateRisks"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MainActivity"
             android:label="IFYouDrive">
