@@ -50,9 +50,6 @@ class EvaluateRisks : AppCompatActivity() {
                     "de prison, ainsi que d'un retrait de 6 points sur le permis de conduire. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
         }
 
-        reactivityButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
-        skipToDrive.isEnabled = (estimation <= threshold) && !drugsEvaluation
-
         reactivityButton.setOnClickListener {
             val intentToReactivity = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
             startActivity(intentToReactivity)
