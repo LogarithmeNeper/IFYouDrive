@@ -10,11 +10,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationServices
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.ScaleBarOverlay
+import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
 class Driving : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -24,24 +28,23 @@ class Driving : AppCompatActivity() {
     private var init:Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
-            Configuration.getInstance().load(
-                this, PreferenceManager.getDefaultSharedPreferences(
-                    this
-                )
-            );
-            setContentView(R.layout.activity_driving);
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        super.onCreate(savedInstanceState)
+        Configuration.getInstance().load(
+            this, PreferenceManager.getDefaultSharedPreferences(
+                this
+            )
+        )
+        setContentView(R.layout.activity_driving)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-            val map : MapView = findViewById(R.id.mapview)
-            map.setTileSource(TileSourceFactory.MAPNIK);
-            firstMarker = Marker(map)
-
+        val map : MapView = findViewById(R.id.mapview)
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        firstMarker = Marker(map)
 
         val mapController = map.controller
-            mapController.setZoom(15.0)
+        mapController.setZoom(15.0)
       
-         // added the possibility to rotate the map
+        // Added the possibility to rotate the map
         val mRotationGestureOverlay : RotationGestureOverlay = RotationGestureOverlay(this, map)
         mRotationGestureOverlay.setEnabled(true)
         map.setMultiTouchControls(true)
@@ -58,9 +61,8 @@ class Driving : AppCompatActivity() {
         mScaleBarOverlay.setCentred(true)
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10)
         map.overlays.add(mScaleBarOverlay)
-      
-      
-        val request = LocationRequest()
+
+        val request : LocationRequest = LocationRequest()
         request.interval = 10000
         request.fastestInterval = 5000
         request.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -81,6 +83,7 @@ class Driving : AppCompatActivity() {
             // for ActivityCompat#requestPermissions for more details.
             return
         }
+
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 if (ActivityCompat.checkSelfPermission(
@@ -116,6 +119,5 @@ class Driving : AppCompatActivity() {
                 }
             }
         }, null)
-    }
     }
 }
