@@ -44,17 +44,20 @@ class EvaluateReaction : AppCompatActivity() {
             if (testStarted) {
                 var endingTime: Long = System.currentTimeMillis()
                 var delta = endingTime-startingTime
-                if(delta < 500)
+                if(delta <= 500)
                 {
-                    layoutReaction.setBackgroundColor(Color.GREEN)
-                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms ! C'est un bon temps de réponse. \n" +
+                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un bon temps de réponse. \n" +
                             "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                }
+                else if(delta in 501..800)
+                {
+                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un temps de réponse un peu lent, il pourrait être plus judicieux " +
+                            "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
                 else
                 {
-                    layoutReaction.setBackgroundColor(Color.YELLOW)
-                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms ! C'est un temps de réponse un peu long, il ne vous est pas conseillé de conduire \n" +
-                            "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                    textEvaluate.text = "Votre temps de réponse est de ${delta} ms. C'est un temps de réponse lent, il vous est fortement déconseillé de prendre le volant." +
+                            "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
 
                 //textEvaluate.text = "starting time : ${startingTime}, in ms : ${startingTimeInMs}, ending time : ${endingTime}, in ms : ${endingTimeInMs}"

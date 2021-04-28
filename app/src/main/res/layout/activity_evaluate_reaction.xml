@@ -24,19 +24,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
-        android:text="Cliquez sur le bouton commencer quand vous êtes prêts à passer le test.\n Une fois le test lancé, soyez prêts à cliquer n'importe où sur l'écran lorsque celui-ci deviendra rouge."/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textSize="20sp"/>
+        android:text="Appuyez sur le bouton Commencer quand vous serez prêts à passer le test.\nAttendez quelques secondes, et soyez prêts à cliquer n'importe où sur l'écran lorsque celui-ci deviendra rouge."/>
 
     <Button
         android:id="@+id/start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:text="Commencer"/>
 
     <Button
@@ -45,5 +40,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Drive me"/>
+        android:text="Drive me !"/>
 </LinearLayout>
