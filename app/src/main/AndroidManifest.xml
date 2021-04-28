@@ -20,9 +20,8 @@
         <activity android:name=".EvaluateReaction" />
         <activity android:name=".MainActivity" />
         <activity android:name=".EvaluateRisks" />
-        <activity android:name=".Driving"/>
         <activity
-            android:name=".Routing"
+            android:name=".Driving"
             android:label="IFYouDrive">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
