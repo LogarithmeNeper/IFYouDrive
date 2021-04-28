@@ -11,6 +11,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationServices
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -119,5 +122,14 @@ class Driving : AppCompatActivity() {
                 }
             }
         }, null)
+
+        val roadManager: RoadManager = GraphHopperRoadManager("9db0a28e-4851-433f-86c7-94b8a695fb18", true)
+        val waypoints = ArrayList<GeoPoint>()
+        waypoints.add(GeoPoint(45.78312,4.87758))
+        waypoints.add(GeoPoint(45.76269,4.86054))
+        val road = roadManager.getRoad(waypoints)
+        val roadOverlay = RoadManager.buildRoadOverlay(road)
+        map.overlays.add(roadOverlay);
+        map.invalidate()
     }
 }
