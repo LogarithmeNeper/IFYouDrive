@@ -18,10 +18,10 @@
         android:theme="@style/Theme.IFYouDrive"
         android:networkSecurityConfig="@xml/network_security_config">
         <activity android:name=".EvaluateReaction" />
-        <activity android:name=".Driving" />
+        <activity android:name=".MainActivity" />
         <activity android:name=".EvaluateRisks" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Driving"
             android:label="IFYouDrive">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
