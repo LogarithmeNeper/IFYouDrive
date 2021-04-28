@@ -73,6 +73,13 @@
         </LinearLayout>
     </ScrollView>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/reactivity_button"
+        android:layout_marginVertical="10dp"
+        android:text="Nous rappelons que toute valeur fournie dans cette évaluation l'est à titre indicatif et ne peut en aucun cas remplacer l'utilisation d'un éthylotest."/>
+
     <Button
         android:id="@+id/reactivity_button"
         android:layout_width="wrap_content"
