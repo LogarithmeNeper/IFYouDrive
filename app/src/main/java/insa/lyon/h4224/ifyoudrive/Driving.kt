@@ -11,6 +11,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+
+
+
 
 
 
@@ -30,23 +36,26 @@ class Driving : AppCompatActivity() {
         map.setTileSource(TileSourceFactory.MAPNIK)
 
         val mapController = map.controller
-        mapController.setZoom(9.5)
-        val startPoint = GeoPoint(48.8583, 2.2944)
+        mapController.setZoom(18)
+        val startPoint = GeoPoint(45.7819, 4.8726) // Tour Eiffel
         mapController.setCenter(startPoint)
 
-        val compassOverlay : CompassOverlay = CompassOverlay(this, map)
-        compassOverlay.enableCompass()
-        map.overlays.add(compassOverlay)
-
+        // added the possibility to rotate the map
         val mRotationGestureOverlay : RotationGestureOverlay = RotationGestureOverlay(this, map)
         mRotationGestureOverlay.setEnabled(true)
         map.setMultiTouchControls(true)
         map.overlays.add(mRotationGestureOverlay)
 
+        // Added a compass at the top-left of the screen
+        val compassOverlay : CompassOverlay = CompassOverlay(this, map)
+        compassOverlay.enableCompass()
+        map.overlays.add(compassOverlay)
+
+        // Added for a scale bar at the top of the screen
         val dm : DisplayMetrics = this.resources.displayMetrics
         val mScaleBarOverlay : ScaleBarOverlay = ScaleBarOverlay(map)
         mScaleBarOverlay.setCentred(true)
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10)
-        map.getOverlays().add(mScaleBarOverlay)
+        map.overlays.add(mScaleBarOverlay)
     }
 }
