@@ -1,11 +1,12 @@
 package insa.lyon.h4224.ifyoudrive
 
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.round
 
@@ -62,5 +63,65 @@ class EvaluateRisks : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, uri)
             startActivity(intent)
         }
+        val sensorManager : SensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        listSensor(sensorManager);
+
+    }
+
+    private fun listSensor(sensorManager : SensorManager)
+    {
+        val sensors: List<Sensor> = sensorManager.getSensorList(Sensor.TYPE_ALL)
+        // La chaîne descriptive de chaque capteur
+        val sensorDesc = StringBuffer()
+        // pour chaque capteur trouvé, construire sa chaîne descriptive
+        for (sensor in sensors) {
+            sensorDesc.append("New sensor detected : \r\n")
+            sensorDesc.append(
+                "	Name: ${sensor.name} \r\n"
+            )
+            sensorDesc.append(
+                "	Type: ${getType(sensor.type)} \r\n"
+            )
+            sensorDesc.append(
+                "   Version: ${sensor.version} \r\n"
+            )
+            sensorDesc.append(
+                "   Resolution (in the sensor unit): ${sensor.resolution} \r\n"
+            )
+            sensorDesc.append(
+                "   Power in mA used by this sensor while in use ${sensor.power} \r\n"
+            )
+            sensorDesc.append(
+                "   Vendor: ${sensor.vendor} \r\n"
+            )
+            sensorDesc.append(
+                "   Maximum range of the sensor in the sensor's unit. ${sensor.maximumRange} \r\n"
+            )
+            sensorDesc.append(
+                "   Minimum delay allowed between two events in microsecond or zero if this sensor only returns a value when the data it's measuring changes ${sensor.minDelay} \r\n"
+            )
+        }
+        var drugsField : TextView = findViewById(R.id.drugs_field)
+        drugsField.text = sensorDesc
+
+    }
+
+    private fun getType(type : Int) : String
+    {
+        return when (type) {
+            Sensor.TYPE_ACCELEROMETER -> "TYPE_ACCELEROMETER"
+            Sensor.TYPE_GRAVITY -> "TYPE_GRAVITY"
+            Sensor.TYPE_GYROSCOPE -> "TYPE_GYROSCOPE"
+            Sensor.TYPE_LIGHT -> "TYPE_LIGHT"
+            Sensor.TYPE_LINEAR_ACCELERATION -> "TYPE_LINEAR_ACCELERATION"
+            Sensor.TYPE_MAGNETIC_FIELD -> "TYPE_MAGNETIC_FIELD"
+            Sensor.TYPE_ORIENTATION -> "TYPE_ORIENTATION"
+            Sensor.TYPE_PRESSURE -> "TYPE_PRESSURE"
+            Sensor.TYPE_PROXIMITY -> "TYPE_PROXIMITY"
+            Sensor.TYPE_ROTATION_VECTOR -> "TYPE_ROTATION_VECTOR"
+            Sensor.TYPE_TEMPERATURE -> "TYPE_TEMPERATURE"
+            else -> "TYPE_UNKNOW"
+        }
     }
 }
+

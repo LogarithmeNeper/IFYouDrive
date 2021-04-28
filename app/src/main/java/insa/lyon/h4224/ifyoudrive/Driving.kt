@@ -1,15 +1,17 @@
 package insa.lyon.h4224.ifyoudrive
 
+import android.Manifest
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.views.MapView
-import android.Manifest
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
 
 class Driving : AppCompatActivity() {
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
