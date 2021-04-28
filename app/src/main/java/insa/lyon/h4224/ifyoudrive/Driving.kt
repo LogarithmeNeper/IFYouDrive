@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.DisplayMetrics
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -16,7 +17,6 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
 class Driving : AppCompatActivity() {
-    //private val REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
@@ -25,7 +25,6 @@ class Driving : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
-        //if(hasPermissions()) {
             Configuration.getInstance().load(
                 this, PreferenceManager.getDefaultSharedPreferences(
                     this
@@ -41,7 +40,26 @@ class Driving : AppCompatActivity() {
 
         val mapController = map.controller
             mapController.setZoom(15.0)
-        //}
+      
+         // added the possibility to rotate the map
+        val mRotationGestureOverlay : RotationGestureOverlay = RotationGestureOverlay(this, map)
+        mRotationGestureOverlay.setEnabled(true)
+        map.setMultiTouchControls(true)
+        map.overlays.add(mRotationGestureOverlay)
+
+        // Added a compass at the top-left of the screen
+        val compassOverlay : CompassOverlay = CompassOverlay(this, map)
+        compassOverlay.enableCompass()
+        map.overlays.add(compassOverlay)
+
+        // Added for a scale bar at the top of the screen
+        val dm : DisplayMetrics = this.resources.displayMetrics
+        val mScaleBarOverlay : ScaleBarOverlay = ScaleBarOverlay(map)
+        mScaleBarOverlay.setCentred(true)
+        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10)
+        map.overlays.add(mScaleBarOverlay)
+      
+      
         val request = LocationRequest()
         request.interval = 10000
         request.fastestInterval = 5000
@@ -99,20 +117,5 @@ class Driving : AppCompatActivity() {
             }
         }, null)
     }
-
-    private fun hasPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) ==
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) ==
-                PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) ==
-                PackageManager.PERMISSION_GRANTED
     }
 }

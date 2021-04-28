@@ -20,9 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Cliquez sur le bouton commencer quand vous êtes prêts à passer le test.
-        Une fois le test lancé, soyez prêts à cliquer n'importe où sur l'écran lorsque
-        celui-ci deviendra rouge."/>
+        android:text="Cliquez sur le bouton commencer quand vous êtes prêts à passer le test.\n Une fois le test lancé, soyez prêts à cliquer n'importe où sur l'écran lorsque celui-ci deviendra rouge."/>
 
     <Button
         android:id="@+id/start_button"
