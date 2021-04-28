@@ -34,9 +34,11 @@ class Driving : AppCompatActivity() {
 
         val map : MapView = findViewById(R.id.mapview)
         map.setTileSource(TileSourceFactory.MAPNIK)
+        map.setMinZoomLevel(5.0) //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
+        map.setMaxZoomLevel(20.0) //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
 
         val mapController = map.controller
-        mapController.setZoom(18)
+        mapController.setZoom(18.0)
         val startPoint = GeoPoint(45.7819, 4.8726) // Tour Eiffel
         mapController.setCenter(startPoint)
 
