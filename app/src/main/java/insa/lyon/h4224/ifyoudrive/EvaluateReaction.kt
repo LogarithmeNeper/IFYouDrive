@@ -65,7 +65,7 @@ class EvaluateReaction : AppCompatActivity() {
             true
         }
         driveButton.setOnClickListener {
-            val intentToDrive = Intent(this@EvaluateReaction, Test_speed::class.java)
+            val intentToDrive = Intent(this@EvaluateReaction, TestSpeedGPS::class.java)
             startActivity(intentToDrive)
         }
     }
