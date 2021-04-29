@@ -43,7 +43,7 @@ class Driving : AppCompatActivity() {
 
         val mapController = map.controller
         mapController.setZoom(15.0)
-      
+
         // Added the possibility to rotate the map
         val mRotationGestureOverlay : RotationGestureOverlay = RotationGestureOverlay(this, map)
         mRotationGestureOverlay.setEnabled(true)

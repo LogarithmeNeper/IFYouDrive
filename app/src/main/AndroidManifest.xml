@@ -17,11 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
+        <activity android:name=".MainActivity"></activity>
         <activity android:name=".EvaluateReaction" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".Driving" />
         <activity android:name=".EvaluateRisks" />
         <activity
-            android:name=".Driving"
+            android:name=".Test_speed"
             android:label="IFYouDrive">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
