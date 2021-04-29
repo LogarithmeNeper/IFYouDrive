@@ -17,7 +17,13 @@ class Test_speed : AppCompatActivity(), SensorEventListener {
     // L'accéléromètre
     var linearAccelerationSensor: Sensor? = null
     var mSensor : Sensor? = null
-    var listSpeed : MutableList<Float> = mutableListOf(0F)
+    var listSpeedX : MutableList<Float> = mutableListOf(0F)
+    var listSpeedY : MutableList<Float> = mutableListOf(0F)
+    var listSpeedZ : MutableList<Float> = mutableListOf(0F)
+    var previousTime : Long = 0
+    var actualSpeedX : Float = 0F
+    var actualSpeedY : Float = 0F
+    var actualSpeedZ : Float = 0F
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_speed)
@@ -50,28 +56,63 @@ class Test_speed : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         // Récupérer les valeurs du capteur
-        var x : Float = 0F
-        var y : Float = 0F
-        var z : Float = 0F
-        var speed : Float = 0F // actuellement, uniquement vitesse sur x et y
+        var accX : Float = 0F
+        var accY : Float = 0F
+        var accZ : Float = 0F
+        var actualTime : Long = 0
+
         if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            x = event.values[0];
-            y = event.values[1];
-            z = event.values[2];
-            speed = sqrt(x*x + y*y + z*z)
+            accX = event.values[0];
+            accY = event.values[1];
+            accZ = event.values[2];
+            actualTime = System.currentTimeMillis()
+            if(previousTime > 0 ) {
+                // On intègre l'accélération par rapport au temps (en sec) sur les 3 axes
+                actualSpeedX += accX * ((actualTime - previousTime) / 1000)
+                listSpeedX.add(actualSpeedX)
+                actualSpeedY += accY * ((actualTime - previousTime) / 1000)
+                listSpeedY.add(actualSpeedY)
+                actualSpeedZ += accZ * ((actualTime - previousTime) / 1000)
+                listSpeedZ.add(actualSpeedZ)
+
+                if (listSpeedX.size > 1) {
+                    listSpeedX.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
+                }
+                if (listSpeedY.size > 1) {
+                    listSpeedY.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
+                }
+                if (listSpeedZ.size > 1) {
+                    listSpeedZ.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
+                }
+            }
+            previousTime = actualTime
+
         }
-        listSpeed.add(speed) // Add at the end of the list
-        if(listSpeed.size > 50)
-        {
-            listSpeed.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
+        if(listSpeedX.isNotEmpty() && listSpeedY.isNotEmpty() && listSpeedZ.isNotEmpty()) {
+            var sumSpeedX: Float = 0F
+            for (element in listSpeedX) {
+                sumSpeedX += element
+            }
+            var meanSpeedX: Float = sumSpeedX / listSpeedX.size
+
+            var sumSpeedY: Float = 0F
+            for (element in listSpeedY) {
+                sumSpeedY += element
+            }
+            var meanSpeedY: Float = sumSpeedY / listSpeedY.size
+
+            var sumSpeedZ: Float = 0F
+            for (element in listSpeedZ) {
+                sumSpeedZ += element
+            }
+            var meanSpeedZ: Float = sumSpeedZ / listSpeedZ.size
+
+            var speedMS : Float = sqrt(meanSpeedX*meanSpeedX + meanSpeedY*meanSpeedY + meanSpeedZ*meanSpeedZ)
+            var speedKMH : Int = (speedMS*3.6).toInt()
+
+            var textField: TextView = findViewById(R.id.textSpeed)
+            textField.text = "speed = ${speedKMH}, sizeOfList = ${listSpeedX.size}"
+
         }
-        var sumSpeed : Float = 0F
-        for(element in listSpeed)
-        {
-            sumSpeed += element
-        }
-        var meanSpeed : Int = (sumSpeed / listSpeed.size).toInt()
-        var textField : TextView = findViewById(R.id.textSpeed)
-        textField.text = "speed = ${meanSpeed}, sizeOfList = ${listSpeed.size}"
     }
 }
