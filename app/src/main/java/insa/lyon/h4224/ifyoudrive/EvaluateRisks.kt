@@ -20,6 +20,7 @@ class EvaluateRisks : AppCompatActivity() {
         val risksAlcoholField: TextView = findViewById(R.id.risks_alcohol)
         val risksDrugsField: TextView = findViewById(R.id.risks_drugs)
         val reactivityButton: Button = findViewById(R.id.reactivity_button)
+        val skipToDrive: Button = findViewById(R.id.skip_drive_button)
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
 
@@ -31,13 +32,13 @@ class EvaluateRisks : AppCompatActivity() {
         drugsField.text = drugsEvaluation.toString()
 
         if(estimation <= threshold) {
-            risksAlcoholField.text = "Votre alcoolémie est inférieure au seuil autorisée (dans votre cas, ${threshold}."
+            risksAlcoholField.text = "Votre alcoolémie est inférieure au seuil autorisée (dans votre cas, ${threshold}.)"
         }
         else if(estimation > threshold && estimation <= 0.8) {
             risksAlcoholField.text = "Votre alcoolémie est supérieure au seuil autorisé (dans votre cas, ${threshold} g/L dans le sang). Cette contravention fait que vous risquez une amende de 135€ majorable, le retrait de 6 points sur votre permis, et une immobilisation du véhicule."
         }
         else if(estimation > 0.8) {
-            risksAlcoholField.text = "Votre alcoolémie est bien supérieur au seuil autorisé. Ce délit fait que vous risquez le retrait de votre permis, une interdiction de conduire pendant 72h, 6 points retirés sur le permis, une amende de 4500€, une peine d'emprisonnement de 2 ans maximum, une suspension voire une interdiction de permis pour une durée de 3 ans maximum.."
+            risksAlcoholField.text = "Votre alcoolémie est bien supérieure au seuil autorisé. Ce délit fait que vous risquez le retrait de votre permis, une interdiction de conduire pendant 72h, 6 points retirés sur le permis, une amende de 4500€, une peine d'emprisonnement de 2 ans maximum, une suspension voire une interdiction de permis pour une durée de 3 ans maximum.."
         }
 
         if(drugsEvaluation) {
@@ -45,10 +46,16 @@ class EvaluateRisks : AppCompatActivity() {
         }
 
         reactivityButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
+        skipToDrive.isEnabled = (estimation <= threshold) && !drugsEvaluation
 
         reactivityButton.setOnClickListener {
             val intentToReactivity = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
             startActivity(intentToReactivity)
+        }
+
+        skipToDrive.setOnClickListener {
+            val intentToDrive = Intent(this@EvaluateRisks, Driving::class.java)
+            startActivity(intentToDrive)
         }
 
         infoAlcohol.setOnClickListener {
