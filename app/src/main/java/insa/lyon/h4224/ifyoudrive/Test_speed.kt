@@ -68,20 +68,26 @@ class Test_speed : AppCompatActivity(), SensorEventListener {
             actualTime = System.currentTimeMillis()
             if(previousTime > 0 ) {
                 // On intègre l'accélération par rapport au temps (en sec) sur les 3 axes
-                actualSpeedX += accX * ((actualTime - previousTime) / 1000)
-                listSpeedX.add(actualSpeedX)
-                actualSpeedY += accY * ((actualTime - previousTime) / 1000)
-                listSpeedY.add(actualSpeedY)
-                actualSpeedZ += accZ * ((actualTime - previousTime) / 1000)
-                listSpeedZ.add(actualSpeedZ)
+                if(accX > 0.1) {
+                    actualSpeedX += accX * ((actualTime - previousTime) / 1000)
+                    listSpeedX.add(actualSpeedX)
+                }
+                if(accY > 0.1) {
+                    actualSpeedY += accY * ((actualTime - previousTime) / 1000)
+                    listSpeedY.add(actualSpeedY)
+                }
+                if(accZ > 0.1) {
+                    actualSpeedZ += accZ * ((actualTime - previousTime) / 1000)
+                    listSpeedZ.add(actualSpeedZ)
+                }
 
-                if (listSpeedX.size > 1) {
+                if (listSpeedX.size > 20) {
                     listSpeedX.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
                 }
-                if (listSpeedY.size > 1) {
+                if (listSpeedY.size > 20) {
                     listSpeedY.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
                 }
-                if (listSpeedZ.size > 1) {
+                if (listSpeedZ.size > 20) {
                     listSpeedZ.removeFirst() // Ainsi on a les 20 dernières vitesses glissantes
                 }
             }
@@ -111,7 +117,7 @@ class Test_speed : AppCompatActivity(), SensorEventListener {
             var speedKMH : Int = (speedMS*3.6).toInt()
 
             var textField: TextView = findViewById(R.id.textSpeed)
-            textField.text = "speed = ${speedKMH}, sizeOfList = ${listSpeedX.size}"
+            textField.text = "actualSpeedX = ${actualSpeedX}, actualSpeedY = ${actualSpeedY}, actualSpeedZ = ${actualSpeedZ}, speed = ${speedKMH}, sizeOfList = ${listSpeedX.size}"
 
         }
     }
