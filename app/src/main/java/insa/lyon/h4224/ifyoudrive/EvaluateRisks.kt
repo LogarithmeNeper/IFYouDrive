@@ -24,9 +24,9 @@ class EvaluateRisks : AppCompatActivity() {
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
 
-        val estimation: Double = intent.getDoubleExtra("Estimation", 1.0)
-        val drugsEvaluation: Boolean = intent.getBooleanExtra("Drugs", true)
-        val threshold: Double = intent.getDoubleExtra("Threshold", 0.0)
+        val estimation: Double = intent.getDoubleExtra("Estimation", 0.0)
+        val drugsEvaluation: Boolean = intent.getBooleanExtra("Drugs", false)
+        val threshold: Double = intent.getDoubleExtra("Threshold", 1.0)
 
         estimationField.text = (round(estimation*100)/100).toString()
         drugsField.text = if(drugsEvaluation) "Présence de drogues" else "Absence de drogues"
