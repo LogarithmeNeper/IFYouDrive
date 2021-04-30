@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.TileSystem
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
@@ -34,8 +35,10 @@ class Driving : AppCompatActivity() {
 
         val map : MapView = findViewById(R.id.mapview)
         map.setTileSource(TileSourceFactory.MAPNIK)
-        map.setMinZoomLevel(5.0) //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
-        map.setMaxZoomLevel(20.0) //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
+        map.minZoomLevel = 5.0 //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
+        map.maxZoomLevel = 20.0 //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
+        map.isVerticalMapRepetitionEnabled = false;
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude,-TileSystem.MaxLatitude, 0)
 
         val mapController = map.controller
         mapController.setZoom(18.0)
