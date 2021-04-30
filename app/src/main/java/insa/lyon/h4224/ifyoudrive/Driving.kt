@@ -115,7 +115,7 @@ class Driving : AppCompatActivity() {
         StrictMode.setThreadPolicy(policy)
 
         val roadManager: RoadManager = GraphHopperRoadManager(
-            "9db0a28e-4851-433f-86c7-94b8a695fb18",
+            "c61c6759-54c5-4009-9c03-47d4498d97a2",
             true
         )
 
@@ -134,23 +134,6 @@ class Driving : AppCompatActivity() {
 
     fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
-    }
-
-    fun onSensorChanged(event: SensorEvent) {
-        Log.d("TAG","cc")
-        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) mGravity = event.values
-        if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) mGeomagnetic = event.values
-        if (mGravity != null && mGeomagnetic != null) {
-            val R = FloatArray(9)
-            val I = FloatArray(9)
-            if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
-
-                // orientation contains azimut, pitch and roll
-                val orientation = FloatArray(3)
-                SensorManager.getOrientation(R, orientation)
-                //azimut = orientation[0]
-            }
-        }
     }
 }
 
