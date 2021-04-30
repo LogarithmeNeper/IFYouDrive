@@ -2,12 +2,17 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorManager
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.preference.PreferenceManager
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -30,6 +35,8 @@ class Driving : AppCompatActivity() {
     private var longitude: Double = 0.0
     private var firstMarker: Marker?=null
     private var init:Boolean = true
+    var mGravity: FloatArray? = null
+    var mGeomagnetic: FloatArray? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +48,8 @@ class Driving : AppCompatActivity() {
         )
         setContentView(R.layout.activity_driving)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        //mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
 
         val map : MapView = findViewById(R.id.mapview)
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -76,7 +85,11 @@ class Driving : AppCompatActivity() {
 
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                while (ActivityCompat.checkSelfPermission(
+                        this@Driving,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
@@ -88,10 +101,12 @@ class Driving : AppCompatActivity() {
                     firstMarker!!.position = GeoPoint(latitude, longitude)
                     firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     if (init) {
-                        mapController.setCenter(GeoPoint(latitude, longitude))
+                        //mapController.setCenter(GeoPoint(latitude, longitude))
+                        mapController.setCenter(GeoPoint(45.78312, 4.87758))
                         map.overlays.add(firstMarker)
                         init = false
                     }
+                    mapController.animateTo(firstMarker!!.position, 15.0, 100, compassOverlay.orientation)
                 }
             }
         }, null)
@@ -110,6 +125,8 @@ class Driving : AppCompatActivity() {
             waypoints.add(GeoPoint(45.76269, 4.86054))
             val road = roadManager.getRoad(waypoints)
             val roadOverlay = RoadManager.buildRoadOverlay(road)
+            roadOverlay.outlinePaint.color = Color.RED
+            roadOverlay.outlinePaint.strokeWidth = 15.0F
             map.overlays.add(roadOverlay);
             map.invalidate()
         }
@@ -118,4 +135,22 @@ class Driving : AppCompatActivity() {
     fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
     }
+
+    fun onSensorChanged(event: SensorEvent) {
+        Log.d("TAG","cc")
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) mGravity = event.values
+        if (event.sensor.type == Sensor.TYPE_MAGNETIC_FIELD) mGeomagnetic = event.values
+        if (mGravity != null && mGeomagnetic != null) {
+            val R = FloatArray(9)
+            val I = FloatArray(9)
+            if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
+
+                // orientation contains azimut, pitch and roll
+                val orientation = FloatArray(3)
+                SensorManager.getOrientation(R, orientation)
+                //azimut = orientation[0]
+            }
+        }
+    }
 }
+
