@@ -17,19 +17,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
-        <activity android:name=".MainActivity"></activity>
+
+        <activity android:name=".TestSpeedGPS"></activity>
         <activity android:name=".Test_speed" />
         <activity android:name=".EvaluateReaction" />
-        <activity android:name=".Driving" />
-        <activity android:name=".EvaluateRisks" />
         <activity
-            android:name=".TestSpeedGPS"
+            android:name=".MainActivity"
             android:label="IFYouDrive">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity 
+            android:name=".EvaluateRisks" 
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".Driving"
+            android:parentActivityName=".EvaluateReaction"
+            android:label="IFYouDrive">
         </activity>
     </application>
 

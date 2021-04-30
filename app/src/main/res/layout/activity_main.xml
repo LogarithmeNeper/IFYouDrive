@@ -19,12 +19,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:textSize="23sp"
         android:text="Auto-évaluation de l'alcoolémie du conducteur"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Je suis biologiquement :"/>
 
     <RadioGroup
@@ -50,63 +51,63 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Je pèse : (en kg)"/>
 
     <EditText
         android:id="@+id/weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:inputType="number"
         android:hint="70"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Nombre de bières (25 cL, 7°) consommées :"/>
 
     <EditText
         android:id="@+id/beers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:inputType="number"
         android:hint="0"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Nombre de verres de vin (10 cL, 12°) consommés :"/>
 
     <EditText
         android:id="@+id/wine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:inputType="number"
         android:hint="0"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Nombre de spiritueux (3 cL, 40°) consommés :"/>
 
     <EditText
         android:id="@+id/spirits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:inputType="number"
         android:hint="0"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="J'ai consommé de la drogue : "/>
 
     <RadioGroup
@@ -132,7 +133,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="10sp"
         android:text="Jeune conducteur.trice, période probatoire, ... ?"/>
 
     <RadioGroup

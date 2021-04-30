@@ -44,5 +44,5 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.0.1'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
-
+    implementation 'com.github.MKergall:osmbonuspack:6.7.0'
 }

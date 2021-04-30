@@ -25,29 +25,31 @@ class EvaluateRisks : AppCompatActivity() {
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
 
-        val estimation: Double = intent.getDoubleExtra("Estimation", 1.0)
-        val drugsEvaluation: Boolean = intent.getBooleanExtra("Drugs", true)
-        val threshold: Double = intent.getDoubleExtra("Threshold", 0.0)
+        val estimation: Double = intent.getDoubleExtra("Estimation", 0.0)
+        val drugsEvaluation: Boolean = intent.getBooleanExtra("Drugs", false)
+        val threshold: Double = intent.getDoubleExtra("Threshold", 1.0)
 
         estimationField.text = (round(estimation*100)/100).toString()
-        drugsField.text = drugsEvaluation.toString()
+        drugsField.text = if(drugsEvaluation) "Présence de drogues" else "Absence de drogues"
 
         if(estimation <= threshold) {
-            risksAlcoholField.text = "Votre alcoolémie est inférieure au seuil autorisée (dans votre cas, ${threshold}.)"
+            risksAlcoholField.text = "Votre alcoolémie est estimée inférieure au seuil autorisé (dans votre cas, ${threshold}.)"
         }
         else if(estimation > threshold && estimation <= 0.8) {
-            risksAlcoholField.text = "Votre alcoolémie est supérieure au seuil autorisé (dans votre cas, ${threshold} g/L dans le sang). Cette contravention fait que vous risquez une amende de 135€ majorable, le retrait de 6 points sur votre permis, et une immobilisation du véhicule."
+            risksAlcoholField.text = "Votre alcoolémie est estimée supérieure au seuil autorisé (dans votre cas, ${threshold} g/L dans le sang). " +
+                    "Conduire dans cet état constitue une contravention passible d'une amende de 135€ majorable, du retrait de 6 points sur le permis " +
+                    "de conduire, et d'une immobilisation du véhicule."
         }
         else if(estimation > 0.8) {
-            risksAlcoholField.text = "Votre alcoolémie est bien supérieure au seuil autorisé. Ce délit fait que vous risquez le retrait de votre permis, une interdiction de conduire pendant 72h, 6 points retirés sur le permis, une amende de 4500€, une peine d'emprisonnement de 2 ans maximum, une suspension voire une interdiction de permis pour une durée de 3 ans maximum.."
+            risksAlcoholField.text = "Votre alcoolémie est estimée très supérieure au seuil autorisé. Conduire dans cet état constitue un " +
+                    "délit passible du retrait de 6 points sur le permis de conduire, d'une amende de 4 500€, d'une peine d'emprisonnement " +
+                    "de deux ans maximum, d'une suspension, voire d'un retrait, du permis pour une durée de trois ans maximum, etc..."
         }
 
         if(drugsEvaluation) {
-            risksDrugsField.text = "La conduite sous l'emprise de stupéfiants constitue un délit passible de 4500€ d'amende, d'une peine de 2 ans de prison, ainsi que d'un retrait de 6 points sur le permis de conduire automatique. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
+            risksDrugsField.text = "La conduite sous l'emprise de stupéfiants constitue un délit passible de 4500€ d'amende, d'une peine de 2 ans " +
+                    "de prison, ainsi que d'un retrait de 6 points sur le permis de conduire. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
         }
-
-        reactivityButton.isEnabled = (estimation <= threshold) && !drugsEvaluation
-        skipToDrive.isEnabled = (estimation <= threshold) && !drugsEvaluation
 
         reactivityButton.setOnClickListener {
             val intentToReactivity = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
