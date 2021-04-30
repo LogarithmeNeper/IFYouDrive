@@ -23,18 +23,19 @@ class EvaluateReaction : AppCompatActivity() {
         val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
         val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
         val driveButton : Button = findViewById(R.id.drive_button)
+        val title: TextView = findViewById(R.id.title)
 
         var startingTime : Long = System.currentTimeMillis()
         var testStarted : Boolean = false
 
         mStartButton.setOnClickListener {
-            textEvaluate.text = "quand l'écran devient rouge, cliquez n'importe où dessus !"
             driveButton.visibility = View.INVISIBLE
             mStartButton.visibility = View.INVISIBLE
             var randomTime = Random.nextInt(2000,8000)
             Thread.sleep(randomTime.toLong());
             layoutReaction.setBackgroundColor(Color.RED);
-            textEvaluate.text = "cliquez n'importe où sur l'écran maintenant !"
+            textEvaluate.visibility = View.INVISIBLE
+            title.visibility = View.INVISIBLE
             testStarted = true
             startingTime = System.currentTimeMillis()
 
@@ -43,23 +44,29 @@ class EvaluateReaction : AppCompatActivity() {
             if (testStarted) {
                 var endingTime: Long = System.currentTimeMillis()
                 var delta = endingTime-startingTime
-                if(delta < 400)
+                if(delta <= 500)
                 {
-                    layoutReaction.setBackgroundColor(Color.GREEN)
-                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms ! C'est un bon temps de réponse \n" +
-                            "Vous pouvez relancer un test en cliquant sur commencer ou lancer le gps en cliquant sur drive me "
+                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un bon temps de réponse. \n" +
+                            "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                }
+                else if(delta in 501..800)
+                {
+                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un temps de réponse un peu lent, il pourrait être plus judicieux " +
+                            "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
                 else
                 {
-                    layoutReaction.setBackgroundColor(Color.YELLOW)
-                    textEvaluate.text = "Votre temps de réactivité est de ${delta} ms ! C'est un temps de réponse un peu long, il ne vous est pas conseillé de conduire \n" +
-                            "Vous pouvez relancer un test en cliquant sur commencer ou lancer le gps en cliquant sur drive me "
+                    textEvaluate.text = "Votre temps de réponse est de ${delta} ms. C'est un temps de réponse lent, il vous est fortement déconseillé de prendre le volant." +
+                            "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
 
                 //textEvaluate.text = "starting time : ${startingTime}, in ms : ${startingTimeInMs}, ending time : ${endingTime}, in ms : ${endingTimeInMs}"
                 testStarted = false
+                textEvaluate.visibility = View.VISIBLE
+                title.visibility = View.VISIBLE
                 layoutReaction.setBackgroundColor(Color.WHITE)
                 driveButton.visibility = View.VISIBLE
+                mStartButton.text = "Nouveau test"
                 mStartButton.visibility = View.VISIBLE
             }
             true
