@@ -17,6 +17,7 @@ import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.TileSystem
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
@@ -43,13 +44,22 @@ class Driving : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val map : MapView = findViewById(R.id.mapview)
-        map.setTileSource(TileSourceFactory.MAPNIK);
+
+        map.setTileSource(TileSourceFactory.MAPNIK)
         firstMarker = Marker(map)
+      
+        map.minZoomLevel = 5.0 //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
+        map.maxZoomLevel = 20.0 //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
+        map.isVerticalMapRepetitionEnabled = false;
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude,-TileSystem.MaxLatitude, 0)
 
         val mapController = map.controller
         mapController.setZoom(15.0)
-      
-        // Added the possibility to rotate the map
+        val startPoint = GeoPoint(45.7819, 4.8726) // Tour Eiffel
+        mapController.setCenter(startPoint)
+
+        // added the possibility to rotate the map
+
         val mRotationGestureOverlay : RotationGestureOverlay = RotationGestureOverlay(this, map)
         mRotationGestureOverlay.setEnabled(true)
         map.setMultiTouchControls(true)
