@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.preference.PreferenceManager
 import android.util.DisplayMetrics
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,14 +24,23 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import org.osmdroid.views.overlay.*
+import org.osmdroid.views.overlay.simplefastpoint.*
+import org.osmdroid.views.overlay.gestures.*
+import org.osmdroid.views.overlay.compass.*
+import org.osmdroid.views.overlay.milestones.*
+import kotlin.math.sqrt
 
 
 class Driving : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var previousLat : Double = 0.0
+    private var previousLong : Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var firstMarker: Marker?=null
     private var init:Boolean = true
+    private var speed : Double = 0.0
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,14 +97,23 @@ class Driving : AppCompatActivity() {
 
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
+                var textField: TextView = findViewById(R.id.textSpeedDriving)
                 while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         latitude = if (location.latitude != null) location.latitude else latitude
-                        longitude =
-                            if (location.longitude != null) location.longitude else longitude
+                        longitude = if (location.longitude != null) location.longitude else longitude
+                        if(previousLat != 0.0 && previousLong != 0.0)
+                        {
+                            var distance = sqrt((latitude-previousLat)*(latitude-previousLat) + (longitude-previousLong)*(longitude-previousLong))
+                            var speed = (distance/1.0)*3.6
+                            textField.text = "speed : ${speed.toInt()}"
+                        }
+                        previousLat = latitude
+                        previousLong = longitude
+
                     }
                     firstMarker!!.position = GeoPoint(latitude, longitude)
                     firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
