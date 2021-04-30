@@ -3,14 +3,17 @@ package insa.lyon.h4224.ifyoudrive
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.preference.PreferenceManager
 import android.util.DisplayMetrics
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationServices
+import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
+import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -21,6 +24,7 @@ import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
+
 class Driving : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitude: Double = 0.0
@@ -28,6 +32,7 @@ class Driving : AppCompatActivity() {
     private var firstMarker: Marker?=null
     private var init:Boolean = true
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Configuration.getInstance().load(
@@ -73,45 +78,16 @@ class Driving : AppCompatActivity() {
         map.overlays.add(mScaleBarOverlay)
 
         val request : LocationRequest = LocationRequest()
-        request.interval = 10000
-        request.fastestInterval = 5000
+        request.interval = 1000
         request.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
+        while (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
 
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                if (ActivityCompat.checkSelfPermission(
-                        this@Driving,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                        this@Driving,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return
+                while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
@@ -129,5 +105,27 @@ class Driving : AppCompatActivity() {
                 }
             }
         }, null)
+
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+
+        val roadManager: RoadManager = GraphHopperRoadManager(
+            "9db0a28e-4851-433f-86c7-94b8a695fb18",
+            true
+        )
+
+        doAsync {
+            val waypoints = ArrayList<GeoPoint>()
+            waypoints.add(GeoPoint(45.78312, 4.87758))
+            waypoints.add(GeoPoint(45.76269, 4.86054))
+            val road = roadManager.getRoad(waypoints)
+            val roadOverlay = RoadManager.buildRoadOverlay(road)
+            map.overlays.add(roadOverlay);
+            map.invalidate()
+        }
+    }
+
+    fun doAsync(f: () -> Unit) {
+        Thread { f() }.start()
     }
 }
