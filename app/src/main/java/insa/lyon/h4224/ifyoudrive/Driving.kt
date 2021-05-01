@@ -102,11 +102,12 @@ class Driving : AppCompatActivity() {
                     firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     if (init) {
                         //mapController.setCenter(GeoPoint(latitude, longitude))
-                        mapController.setCenter(GeoPoint(45.78312, 4.87758))
+                        //mapController.setCenter(GeoPoint(45.78312, 4.87758))
                         map.overlays.add(firstMarker)
                         init = false
+                        Log.d("INIT", firstMarker!!.position.latitude.toString())
                     }
-                    mapController.animateTo(firstMarker!!.position, 15.0, 100, compassOverlay.orientation)
+                    mapController.animateTo(firstMarker!!.position, 15.0, 100, -compassOverlay.orientation)
                 }
             }
         }, null)
@@ -121,7 +122,9 @@ class Driving : AppCompatActivity() {
 
         doAsync {
             val waypoints = ArrayList<GeoPoint>()
-            waypoints.add(GeoPoint(45.78312, 4.87758))
+            while (init) {}
+            waypoints.add(firstMarker!!.position)
+            Log.d("TAG", firstMarker!!.position.latitude.toString())
             waypoints.add(GeoPoint(45.76269, 4.86054))
             val road = roadManager.getRoad(waypoints)
             val roadOverlay = RoadManager.buildRoadOverlay(road)
