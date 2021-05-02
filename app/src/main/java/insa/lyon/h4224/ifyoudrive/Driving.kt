@@ -124,7 +124,7 @@ class Driving : AppCompatActivity() {
                             if(tabSpeed.size != 0) {
                                 var meanSpeed = sumSpeed / tabSpeed.size
                                 textField.text =
-                                    "speed = ${meanSpeed.toInt()}"
+                                    "${meanSpeed.toInt()} km/h"
                             }
                         }
                         previousLat = latitude
