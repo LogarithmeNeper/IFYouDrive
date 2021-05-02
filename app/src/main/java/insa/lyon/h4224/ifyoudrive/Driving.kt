@@ -24,11 +24,9 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
-import org.osmdroid.views.overlay.*
-import org.osmdroid.views.overlay.simplefastpoint.*
-import org.osmdroid.views.overlay.gestures.*
-import org.osmdroid.views.overlay.compass.*
-import org.osmdroid.views.overlay.milestones.*
+import java.lang.Math.pow
+import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 
@@ -40,7 +38,9 @@ class Driving : AppCompatActivity() {
     private var longitude: Double = 0.0
     private var firstMarker: Marker?=null
     private var init:Boolean = true
-    private var speed : Double = 0.0
+    private var tabSpeed : MutableList<Double> = mutableListOf(0.0)
+    private var previousTime : Long = 0L
+    private var time : Long = 0L
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,14 +105,31 @@ class Driving : AppCompatActivity() {
                     if (location != null) {
                         latitude = if (location.latitude != null) location.latitude else latitude
                         longitude = if (location.longitude != null) location.longitude else longitude
-                        if(previousLat != 0.0 && previousLong != 0.0)
+                        time = System.currentTimeMillis()
+                        if(previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L)
                         {
-                            var distance = sqrt((latitude-previousLat)*(latitude-previousLat) + (longitude-previousLong)*(longitude-previousLong))
-                            var speed = (distance/1.0)*3.6
-                            textField.text = "speed : ${speed.toInt()}"
+                            var distance = distance(previousLat, previousLong, latitude, longitude)
+                            var speed = (distance/((time-previousTime)/1000.0
+                                    ))*3.6
+                            tabSpeed.add(speed)
+                            if(tabSpeed.size > 5) // Used to limit the size of the tab to 5
+                            {
+                                tabSpeed.removeFirst()
+                            }
+                            var sumSpeed : Double = 0.0
+                            for(element in tabSpeed)
+                            {
+                                sumSpeed += element
+                            }
+                            if(tabSpeed.size != 0) {
+                                var meanSpeed = sumSpeed / tabSpeed.size
+                                textField.text =
+                                    "speed = ${meanSpeed.toInt()}"
+                            }
                         }
                         previousLat = latitude
                         previousLong = longitude
+                        previousTime = time
 
                     }
                     firstMarker!!.position = GeoPoint(latitude, longitude)
@@ -147,5 +164,18 @@ class Driving : AppCompatActivity() {
 
     fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
+    }
+
+    fun distance(
+        latA: Double,
+        longA: Double,
+        latB: Double,
+        longB: Double
+    ): Double
+    {
+        val diffLat: Double = latB - latA
+        val diffLong: Double = (longB - longA) * cos((latB + latA) / 2)
+        val distDeg: Double = sqrt(diffLong.pow(2.0) + diffLat.pow(2.0))
+        return distDeg * 1852 * 60
     }
 }
