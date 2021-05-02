@@ -19,8 +19,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled true
         }
     }
     compileOptions {
@@ -45,4 +48,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.github.MKergall:osmbonuspack:6.7.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
 }
