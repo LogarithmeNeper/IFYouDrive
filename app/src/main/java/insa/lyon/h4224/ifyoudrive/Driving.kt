@@ -43,7 +43,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 1. Barre de recherche navigation
 2. Bouton de fin de navigation
 3. affichage instructions
-4. affichage vitesse
+4. affichage vitesse -- ok
 5. bouton fin de liberté pour la carte -- ok
 
 6. effacer le chemin déjà parcouru ?
@@ -201,7 +201,7 @@ class Driving : AppCompatActivity() {
             waypoints.add(GeoPoint(45.76269, 4.86054))
             val road = roadManager.getRoad(waypoints)
             val roadOverlay = RoadManager.buildRoadOverlay(road)
-            roadOverlay.outlinePaint.color = Color.RED
+            roadOverlay.outlinePaint.color = Color.rgb(250, 0, 255)
             roadOverlay.outlinePaint.strokeWidth = 15.0F
             map.overlays.add(roadOverlay)
             map.invalidate()
