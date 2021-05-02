@@ -24,7 +24,6 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
-import java.lang.Math.pow
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt

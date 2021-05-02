@@ -1,8 +1,6 @@
 package insa.lyon.h4224.ifyoudrive
 
 import android.content.Intent
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -72,12 +70,10 @@ class EvaluateRisks : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, uri)
             startActivity(intent)
         }
-        val sensorManager : SensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        listSensor(sensorManager);
 
     }
 
-    private fun listSensor(sensorManager : SensorManager)
+    /*private fun listSensor(sensorManager : SensorManager)
     {
         val sensors: List<Sensor> = sensorManager.getSensorList(Sensor.TYPE_ALL)
         // La chaîne descriptive de chaque capteur
@@ -113,9 +109,9 @@ class EvaluateRisks : AppCompatActivity() {
         var drugsField : TextView = findViewById(R.id.drugs_field)
         drugsField.text = sensorDesc
 
-    }
+    }*/
 
-    private fun getType(type : Int) : String
+    /*private fun getType(type : Int) : String
     {
         return when (type) {
             Sensor.TYPE_ACCELEROMETER -> "TYPE_ACCELEROMETER"
@@ -131,6 +127,6 @@ class EvaluateRisks : AppCompatActivity() {
             Sensor.TYPE_TEMPERATURE -> "TYPE_TEMPERATURE"
             else -> "TYPE_UNKNOW"
         }
-    }
+    }*/
 }
 
