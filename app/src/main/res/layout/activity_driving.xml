@@ -36,8 +36,17 @@
             android:text="Recentrer"
             android:visibility="invisible" />
 
+     <!-- 
+<ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="bottom"
+        android:layout_margin="10dp"
+        android:src="@drawable/speed_img"/>
+-->
+
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textSpeedDriving"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

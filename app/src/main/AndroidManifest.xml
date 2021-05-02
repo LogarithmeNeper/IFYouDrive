@@ -17,9 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
-
-        <activity 
-            android:name=".EvaluateReaction" 
+        <activity android:name=".EvaluateReaction" 
             android:parentActivityName=".EvaluateRisks"/>
         <activity 
             android:name=".Driving"

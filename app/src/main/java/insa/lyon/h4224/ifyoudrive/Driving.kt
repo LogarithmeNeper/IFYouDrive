@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.StrictMode
 import android.util.DisplayMetrics
+import android.widget.TextView
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -31,6 +32,9 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sqrt
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -46,12 +50,15 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
  */
 class Driving : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var previousLat : Double = 0.0
+    private var previousLong : Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var firstMarker: Marker?=null
     private var init:Boolean = true
-    var mGravity: FloatArray? = null
-    var mGeomagnetic: FloatArray? = null
+    private var tabSpeed : MutableList<Double> = mutableListOf(0.0)
+    private var previousTime : Long = 0L
+    private var time : Long = 0L
     private lateinit var mLocationOverlay : MyLocationNewOverlay
     private  lateinit var btnCentre : Button
     private var freeCam = false
@@ -92,6 +99,7 @@ class Driving : AppCompatActivity() {
         map.isVerticalMapRepetitionEnabled = false
         map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0)
         val mapController = map.controller
+
         mapController.setZoom(18.0)
         mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), map)
         mLocationOverlay.enableMyLocation()
@@ -125,17 +133,39 @@ class Driving : AppCompatActivity() {
 
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                while (ActivityCompat.checkSelfPermission(
-                        this@Driving,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
+                var textField: TextView = findViewById(R.id.textSpeedDriving)
+                while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
-                        latitude = location.latitude
+                        latitude = location.latitude 
                         longitude = location.longitude
+                        time = System.currentTimeMillis()
+                        if(previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L)
+                        {
+                            var distance = distance(previousLat, previousLong, latitude, longitude)
+                            var speed = (distance/((time-previousTime)/1000.0
+                                    ))*3.6
+                            tabSpeed.add(speed)
+                            if(tabSpeed.size > 5) // Used to limit the size of the tab to 5
+                            {
+                                tabSpeed.removeFirst()
+                            }
+                            var sumSpeed : Double = 0.0
+                            for(element in tabSpeed)
+                            {
+                                sumSpeed += element
+                            }
+                            if(tabSpeed.size != 0) {
+                                var meanSpeed = sumSpeed / tabSpeed.size
+                                textField.text =
+                                    "${meanSpeed.toInt()} km/h"
+                            }
+                        }
+                        previousLat = latitude
+                        previousLong = longitude
+                        previousTime = time
                     }
                     firstMarker!!.position = GeoPoint(latitude, longitude)
                     firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -186,5 +216,17 @@ class Driving : AppCompatActivity() {
     private fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
     }
-}
 
+    fun distance(
+        latA: Double,
+        longA: Double,
+        latB: Double,
+        longB: Double
+    ): Double
+    {
+        val diffLat: Double = latB - latA
+        val diffLong: Double = (longB - longA) * cos((latB + latA) / 2)
+        val distDeg: Double = sqrt(diffLong.pow(2.0) + diffLat.pow(2.0))
+        return distDeg * 1852 * 60
+    }
+}
