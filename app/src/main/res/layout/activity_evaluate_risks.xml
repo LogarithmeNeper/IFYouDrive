@@ -9,65 +9,79 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/result_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:textSize="23sp"
+        android:text="Résultats de votre évaluation"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_below="@id/result_title"
+        android:layout_above="@id/line">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:textSize="23sp"
-            android:text="Résultats de votre évaluation"/>
-
-        <TextView
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:textSize="17dp"
-            android:text="Alcoolémie estimée :"/>
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/estimation_field"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:layout_gravity="center_horizontal"
-            android:text=""/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/risks_alcohol"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:text=""/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:textSize="17dp"
+                    android:text="Alcoolémie estimée :"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:textSize="17dp"
-            android:text="Drogue : "/>
+                <TextView
+                    android:id="@+id/estimation_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
 
-        <TextView
-            android:id="@+id/drugs_field"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:layout_gravity="center_horizontal"
-            android:text=""/>
+                <TextView
+                    android:id="@+id/risks_alcohol"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text=""/>
 
-        <TextView
-            android:id="@+id/risks_drugs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:text=""/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:textSize="17dp"
+                    android:text="Drogue : "/>
 
+                <TextView
+                    android:id="@+id/drugs_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text=""/>
+
+                <TextView
+                    android:id="@+id/risks_drugs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text=""/>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
     <View
+        android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/design_default_color_primary_dark"
