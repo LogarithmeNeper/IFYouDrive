@@ -38,24 +38,24 @@ import kotlin.math.sqrt
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
-
-/*
-1. Barre de recherche navigation
-2. Bouton de fin de navigation
-3. affichage instructions
-4. affichage vitesse -- ok
-5. bouton fin de liberté pour la carte -- ok
-
-6. effacer le chemin déjà parcouru ?
+/**
+ * Class for the driving activity.
+ * Displays the map, the speed, a compass and a search field.
+ * Using the Openstreetmap API.
+ * Working GPS using Graphhopper and Nominatim.
+ * Yet to do : alerts.
  */
 class Driving : AppCompatActivity() {
+    // In order to get the position
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Global variables
     private var previousLat : Double = 0.0
     private var previousLong : Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var firstMarker: Marker?=null
-    private var init:Boolean = true
+    private var init: Boolean = true
     private var tabSpeed : MutableList<Double> = mutableListOf(0.0)
     private var previousTime : Long = 0L
     private var time : Long = 0L
@@ -63,29 +63,42 @@ class Driving : AppCompatActivity() {
     private  lateinit var btnCentre : Button
     private var freeCam = false
 
+    /**
+     * Function used when creating the window at the beginning.
+     * Uses the template of the activity as it is defined in ~/res/layout/activity_driving.
+     */
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Getting the shared preferences
         Configuration.getInstance().load(
             this, androidx.preference.PreferenceManager.getDefaultSharedPreferences(
                 this
             )
         )
+
+        // Use of template
         setContentView(R.layout.activity_driving)
+
+        // Getting the position.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         val map : MapView = findViewById(R.id.mapview)
 
         btnCentre = findViewById(R.id.btnCentre)
 
+        // Using the Tilesourcefactory of OSM.
         map.setTileSource(TileSourceFactory.MAPNIK)
         firstMarker = Marker(map)
 
         map.addMapListener(DelayedMapListener(object : MapListener {
+            // When zooming
             override fun onZoom(e: ZoomEvent): Boolean {
                 //do something
                 return true
             }
 
+            // When scrolling, liberate the layout and display the button to recenter
             override fun onScroll(e: ScrollEvent): Boolean {
                 if (e.x != 0 || e.y != 0) {
                     btnCentre.visibility = View.VISIBLE
@@ -131,12 +144,15 @@ class Driving : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
 
+        // Used to get an update on the current location
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 var textField: TextView = findViewById(R.id.textSpeedDriving)
+                // Checking if the location permission is granted, otherwise looping
                 while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
+                // When everything goes our way
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         latitude = location.latitude 
@@ -144,6 +160,7 @@ class Driving : AppCompatActivity() {
                         time = System.currentTimeMillis()
                         if(previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L)
                         {
+                            // Calculate the distance and deduce the speed
                             var distance = distance(previousLat, previousLong, latitude, longitude)
                             var speed = (distance/((time-previousTime)/1000.0
                                     ))*3.6
@@ -170,9 +187,6 @@ class Driving : AppCompatActivity() {
                     firstMarker!!.position = GeoPoint(latitude, longitude)
                     firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     if (init) {
-                        //mapController.setCenter(GeoPoint(latitude, longitude))
-                        //mapController.setCenter(GeoPoint(45.78312, 4.87758))
-                        //map.overlays.add(firstMarker)
                         init = false
                     }
                     if (!freeCam) {
@@ -187,6 +201,7 @@ class Driving : AppCompatActivity() {
             }
         }, Looper.getMainLooper())
 
+        // Setting the policy and using the GraphHopperRoadManager to build the route
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val roadManager: RoadManager = GraphHopperRoadManager(
@@ -208,15 +223,24 @@ class Driving : AppCompatActivity() {
         }
     }
 
+    /**
+     * Utility function to center the map : no more center button and no more free cam.
+     */
     fun onCentrerClick(v: View?) {
         freeCam = false
         btnCentre.visibility = View.INVISIBLE
     }
 
+    /**
+     * Utility function for asyncronous tasks.
+     */
     private fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
     }
 
+    /**
+     * Function to calculate the distance between two points with latitude/longitude.
+     */
     fun distance(
         latA: Double,
         longA: Double,
