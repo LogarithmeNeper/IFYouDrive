@@ -6,10 +6,13 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.widget.*
 
-class MainActivity : AppCompatActivity() {
+/**
+ * 
+ */
+class AlcoholForm : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_alcohol_form)
 
         val mSexGroup: RadioGroup = findViewById(R.id.sex_group)
         val mWeight: EditText = findViewById(R.id.weight)
@@ -53,19 +56,19 @@ class MainActivity : AppCompatActivity() {
                 if(weight != 0) {
                     val estimation = (totalVolumeAlcool * 0.8) / (coefDiffusion * weight)
 
-                    val intentToEvaluate = Intent(this@MainActivity, EvaluateRisks::class.java)
+                    val intentToEvaluate = Intent(this@AlcoholForm, EvaluateRisks::class.java)
                     intentToEvaluate.putExtra("Estimation", estimation)
                     intentToEvaluate.putExtra("Drugs", checkedDrugsButton.text=="Oui")
                     intentToEvaluate.putExtra("Threshold", threshold)
                     startActivity(intentToEvaluate)
                 }
                 else {
-                    Toast.makeText(this@MainActivity, "La masse ne peut pas être nulle !",
+                    Toast.makeText(this@AlcoholForm, "La masse ne peut pas être nulle !",
                         Toast.LENGTH_SHORT).show()
                 }
             }
             catch(e: Exception) {
-                Toast.makeText(this@MainActivity, "Merci de remplir tous les champs !",
+                Toast.makeText(this@AlcoholForm, "Merci de remplir tous les champs !",
                     Toast.LENGTH_SHORT).show()
             }
         }
