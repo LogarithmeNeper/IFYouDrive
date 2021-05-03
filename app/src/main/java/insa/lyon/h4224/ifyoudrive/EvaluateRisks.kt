@@ -8,12 +8,19 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.round
 
-
+/**
+ * Class to evaluate the risks.
+ */
 class EvaluateRisks : AppCompatActivity() {
+    /**
+     * Function used when creating the window at the beginning.
+     * Uses the template of the activity as it is defined in ~/res/layout/activity_evaluate_risks
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_evaluate_risks)
 
+        // Getting the necessary information
         val estimationField: TextView = findViewById(R.id.estimation_field)
         val drugsField: TextView = findViewById(R.id.drugs_field)
         val risksAlcoholField: TextView = findViewById(R.id.risks_alcohol)
@@ -23,6 +30,7 @@ class EvaluateRisks : AppCompatActivity() {
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
 
+        // Getting the information from the intent (data from previous activity)
         val estimation: Double = intent.getDoubleExtra("Estimation", 0.0)
         val drugsEvaluation: Boolean = intent.getBooleanExtra("Drugs", false)
         val threshold: Double = intent.getDoubleExtra("Threshold", 1.0)
@@ -30,6 +38,7 @@ class EvaluateRisks : AppCompatActivity() {
         estimationField.text = (round(estimation*100)/100).toString()
         drugsField.text = if(drugsEvaluation) "Présence de drogues" else "Absence de drogues"
 
+        // Displaying according to the estimation and the threshold. Using the French law.
         if(estimation <= threshold) {
             risksAlcoholField.text = "Votre alcoolémie est estimée inférieure au seuil autorisé (dans votre cas, ${threshold}.)"
         }
@@ -49,16 +58,19 @@ class EvaluateRisks : AppCompatActivity() {
                     "de prison, ainsi que d'un retrait de 6 points sur le permis de conduire. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
         }
 
+        // Intenting to test the user reactivity
         reactivityButton.setOnClickListener {
             val intentToReactivity = Intent(this@EvaluateRisks, EvaluateReaction::class.java)
             startActivity(intentToReactivity)
         }
 
+        // Intenting to go straight to the driving activity.
         skipToDrive.setOnClickListener {
             val intentToDrive = Intent(this@EvaluateRisks, Driving::class.java)
             startActivity(intentToDrive)
         }
 
+        // Buttons for external links.
         infoAlcohol.setOnClickListener {
             val uri: Uri = Uri.parse("https://www.securite-routiere.gouv.fr/dangers-de-la-route/lalcool-et-la-conduite")
             val intent = Intent(Intent.ACTION_VIEW, uri)
