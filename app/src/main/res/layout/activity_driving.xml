@@ -11,9 +11,14 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Rechercher une adresse" />
+            android:hint="@string/rechercher_une_adresse"
+            android:maxLines="1"
+            android:lines="1"
+            android:singleLine="true"
+        />
     </com.google.android.material.textfield.TextInputLayout>
 
     <org.osmdroid.views.MapView
@@ -56,10 +61,11 @@
             android:textSize="30sp" />
 
         <Button
-            android:id="@+id/Button02"
+            android:id="@+id/btnFin"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onFinClick"
             android:text="Fin Guidage"
             android:visibility="invisible" />
     </LinearLayout>
