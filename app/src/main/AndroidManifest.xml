@@ -30,9 +30,9 @@
         </activity>
         <activity 
             android:name=".EvaluateRisks" 
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".AlcoholForm"/>
         <activity
-            android:name=".MainActivity"
+            android:name=".AlcoholForm"
             android:parentActivityName=".EvaluateReaction"
             android:label="IFYouDrive">
         </activity>

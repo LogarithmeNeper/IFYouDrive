@@ -13,12 +13,21 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.random.Random
 
+/**
+ * Class to evaluate the user reaction time.
+ */
 class EvaluateReaction : AppCompatActivity() {
+    /**
+     * Function used when creating the window at the beginning.
+     * Uses the template of the activity as it is defined in ~/res/layout/activity_evaluate_reaction
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Using the template.
         setContentView(R.layout.activity_evaluate_reaction)
 
+        // Getting the necessary information.
         val mStartButton: Button = findViewById(R.id.start_button)
         val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
         val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
@@ -28,12 +37,15 @@ class EvaluateReaction : AppCompatActivity() {
         var startingTime : Long = System.currentTimeMillis()
         var testStarted : Boolean = false
 
+        // Listener for starting the activity
         mStartButton.setOnClickListener {
+            // Everything invisible
             driveButton.visibility = View.INVISIBLE
             mStartButton.visibility = View.INVISIBLE
             var randomTime = Random.nextInt(2000,8000)
-            Thread.sleep(randomTime.toLong());
-            layoutReaction.setBackgroundColor(Color.RED);
+            Thread.sleep(randomTime.toLong())
+            // Setting the background color to red.
+            layoutReaction.setBackgroundColor(Color.RED)
             textEvaluate.visibility = View.INVISIBLE
             title.visibility = View.INVISIBLE
             testStarted = true
@@ -44,6 +56,7 @@ class EvaluateReaction : AppCompatActivity() {
             if (testStarted) {
                 var endingTime: Long = System.currentTimeMillis()
                 var delta = endingTime-startingTime
+                // Response according to the delta
                 if(delta <= 500)
                 {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un bon temps de réponse. \n" +
@@ -60,7 +73,7 @@ class EvaluateReaction : AppCompatActivity() {
                             "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
 
-                //textEvaluate.text = "starting time : ${startingTime}, in ms : ${startingTimeInMs}, ending time : ${endingTime}, in ms : ${endingTimeInMs}"
+                // Setting everything visible
                 testStarted = false
                 textEvaluate.visibility = View.VISIBLE
                 title.visibility = View.VISIBLE
@@ -72,6 +85,7 @@ class EvaluateReaction : AppCompatActivity() {
             true
         }
         driveButton.setOnClickListener {
+            // Intent in order to go to the driving activity
             val intentToDrive = Intent(this@EvaluateReaction, Driving::class.java)
             startActivity(intentToDrive)
         }

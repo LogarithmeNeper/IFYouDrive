@@ -47,14 +47,18 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-
-/*
-1. affichage instructions
-2. effacer le trajet effectué ?
-3. recalculer en cas de sortie de l'itinéraire
+/**
+ * Class for the driving activity.
+ * Displays the map, the speed, a compass and a search field.
+ * Using the Openstreetmap API.
+ * Working GPS using Graphhopper and Nominatim.
+ * Yet to do : alerts, path recompute, erase past line.
  */
 class Driving : AppCompatActivity() {
+    // In order to get the position
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Global variables
     private var previousLat : Double = 0.0
     private var previousLong : Double = 0.0
     private var latitude: Double = 0.0
@@ -73,27 +77,41 @@ class Driving : AppCompatActivity() {
     private  lateinit var btnFin : Button
     private lateinit var map : MapView
 
+    /**
+     * Function used when creating the window at the beginning.
+     * Uses the template of the activity as it is defined in ~/res/layout/activity_driving.
+     */
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Getting the shared preferences
         Configuration.getInstance().load(
             this, androidx.preference.PreferenceManager.getDefaultSharedPreferences(
                 this
             )
         )
+
+        // Use of template
         setContentView(R.layout.activity_driving)
+
+        // Getting the position.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         map = findViewById(R.id.mapview)
         btnCentre = findViewById(R.id.btnCentre)
         btnFin = findViewById(R.id.btnFin)
         txtAddress = findViewById(R.id.txtAddress)
+
+        // Using the Tilesourcefactory of OSM.
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.addMapListener(DelayedMapListener(object : MapListener {
+            // When zooming
             override fun onZoom(e: ZoomEvent): Boolean {
                 //do something
                 return true
             }
 
+            // When scrolling, liberate the layout and display the button to recenter
             override fun onScroll(e: ScrollEvent): Boolean {
                 if (e.x != 0 || e.y != 0) {
                     btnCentre.visibility = View.VISIBLE
@@ -139,9 +157,11 @@ class Driving : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
 
+        // Used to get an update on the current location
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val textField: TextView = findViewById(R.id.textSpeedDriving)
+                // Checking if the location permission is granted, otherwise looping
                 while (ActivityCompat.checkSelfPermission(
                         this@Driving,
                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -149,12 +169,14 @@ class Driving : AppCompatActivity() {
                 ) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
+                // When everything goes our way
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         latitude = location.latitude
                         longitude = location.longitude
                         time = System.currentTimeMillis()
                         if (previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L) {
+                            // Calculate the distance and deduce the speed
                             val distance = distance(previousLat, previousLong, latitude, longitude)
                             val speed = (distance / ((time - previousTime) / 1000.0
                                     )) * 3.6
@@ -190,6 +212,7 @@ class Driving : AppCompatActivity() {
             }
         }, Looper.getMainLooper())
 
+        // Setting the policy and using the GraphHopperRoadManager to build the route
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val roadManager: RoadManager = GraphHopperRoadManager(
@@ -243,17 +266,23 @@ class Driving : AppCompatActivity() {
 
     }
 
+    /**
+     * Utility function to center the map : no more center button and no more free cam.
+     */
     fun onCentrerClick(v: View?) {
         freeCam = false
         btnCentre.visibility = View.INVISIBLE
     }
-
     fun onFinClick(v: View?) {
         btnFin.visibility = View.INVISIBLE
         map.overlays.remove(roadOverlay)
         map.invalidate()
         txtAddress.text.clear()
     }
+                                                   
+    /**
+     * Utility function for asyncronous tasks.
+     */
     private fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
     }
@@ -269,7 +298,10 @@ class Driving : AppCompatActivity() {
         }
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
-
+                                                   
+    /**
+     * Function to calculate the distance between two points with latitude/longitude.
+     */
     fun distance(
         latA: Double,
         longA: Double,
