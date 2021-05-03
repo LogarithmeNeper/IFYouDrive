@@ -12,7 +12,6 @@ import android.util.DisplayMetrics
 import android.widget.TextView
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -32,11 +31,9 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sqrt
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import kotlin.math.*
 
 
 /*
@@ -224,9 +221,11 @@ class Driving : AppCompatActivity() {
         longB: Double
     ): Double
     {
+        val R = 6371000
         val diffLat: Double = latB - latA
-        val diffLong: Double = (longB - longA) * cos((latB + latA) / 2)
-        val distDeg: Double = sqrt(diffLong.pow(2.0) + diffLat.pow(2.0))
-        return distDeg * 1852 * 60
+        val diffLong: Double = longB - longA
+        val a: Double = (sin((diffLat/2.0)*(Math.PI/180.0))).pow(2) + cos(latA*(Math.PI/180.0)) * cos(latB*(Math.PI/180.0)) * (sin((diffLong/2.0)*(Math.PI/180.0))).pow(2)
+        val c: Double = 2 * atan2(sqrt(a), sqrt(1-a))
+        return R*c
     }
 }
