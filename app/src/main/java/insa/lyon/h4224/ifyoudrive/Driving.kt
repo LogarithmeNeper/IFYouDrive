@@ -1,6 +1,7 @@
 package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -9,14 +10,20 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.StrictMode
 import android.util.DisplayMetrics
-import android.widget.TextView
+import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.Toast
+import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
@@ -29,14 +36,16 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.TileSystem
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.net.URL
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 
 /*
@@ -60,8 +69,15 @@ class Driving : AppCompatActivity() {
     private var previousTime : Long = 0L
     private var time : Long = 0L
     private lateinit var mLocationOverlay : MyLocationNewOverlay
-    private  lateinit var btnCentre : Button
+    private lateinit var btnCentre : Button
     private var freeCam = false
+    private lateinit var route : String
+    private var jsonObject: JSONArray? = null
+    private lateinit var targetPos : GeoPoint
+    private lateinit var txtAddress : EditText
+    private lateinit var roadOverlay : Polyline
+    private  lateinit var btnFin : Button
+    private lateinit var map : MapView
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,9 +89,14 @@ class Driving : AppCompatActivity() {
         )
         setContentView(R.layout.activity_driving)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        val map : MapView = findViewById(R.id.mapview)
+        map = findViewById(R.id.mapview)
 
+        doAsync {
+
+        }
         btnCentre = findViewById(R.id.btnCentre)
+        btnFin = findViewById(R.id.btnFin)
+        txtAddress = findViewById(R.id.txtAddress)
 
         map.setTileSource(TileSourceFactory.MAPNIK)
         firstMarker = Marker(map)
@@ -133,32 +154,34 @@ class Driving : AppCompatActivity() {
 
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                var textField: TextView = findViewById(R.id.textSpeedDriving)
-                while (ActivityCompat.checkSelfPermission(this@Driving, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                val textField: TextView = findViewById(R.id.textSpeedDriving)
+                while (ActivityCompat.checkSelfPermission(
+                        this@Driving,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
                 }
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
-                        latitude = location.latitude 
+                        latitude = location.latitude
                         longitude = location.longitude
                         time = System.currentTimeMillis()
-                        if(previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L)
-                        {
-                            var distance = distance(previousLat, previousLong, latitude, longitude)
-                            var speed = (distance/((time-previousTime)/1000.0
-                                    ))*3.6
+                        if (previousLat != 0.0 && previousLong != 0.0 && previousTime != 0L) {
+                            val distance = distance(previousLat, previousLong, latitude, longitude)
+                            val speed = (distance / ((time - previousTime) / 1000.0
+                                    )) * 3.6
                             tabSpeed.add(speed)
-                            if(tabSpeed.size > 5) // Used to limit the size of the tab to 5
+                            if (tabSpeed.size > 5) // Used to limit the size of the tab to 5
                             {
                                 tabSpeed.removeFirst()
                             }
-                            var sumSpeed : Double = 0.0
-                            for(element in tabSpeed)
-                            {
+                            var sumSpeed = 0.0
+                            for (element in tabSpeed) {
                                 sumSpeed += element
                             }
-                            if(tabSpeed.size != 0) {
-                                var meanSpeed = sumSpeed / tabSpeed.size
+                            if (tabSpeed.size != 0) {
+                                val meanSpeed = sumSpeed / tabSpeed.size
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
                             }
@@ -194,18 +217,61 @@ class Driving : AppCompatActivity() {
             true
         )
 
-        doAsync {
-            val waypoints = ArrayList<GeoPoint>()
-            while (init) {} // y a surement mieux
-            waypoints.add(firstMarker!!.position)
-            waypoints.add(GeoPoint(45.76269, 4.86054))
-            val road = roadManager.getRoad(waypoints)
-            val roadOverlay = RoadManager.buildRoadOverlay(road)
-            roadOverlay.outlinePaint.color = Color.rgb(250, 0, 255)
-            roadOverlay.outlinePaint.strokeWidth = 15.0F
-            map.overlays.add(roadOverlay)
-            map.invalidate()
-        }
+        txtAddress.setOnKeyListener(object : View.OnKeyListener {
+            override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
+                // if the event is a key down event on the enter button
+                if (event.action == KeyEvent.ACTION_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_ENTER
+                ) {
+                    // perform action on key press
+                    doAsync {
+                        route =
+                            URL("https://nominatim.openstreetmap.org/search.php?q=" + txtAddress.text + "&format=json").readText()
+                        try {
+                            jsonObject = JSONArray(route)
+                            Log.d("TAG", "ok")
+                            val obj: JSONObject = jsonObject!!.get(0) as JSONObject
+                            val tlat = obj.getString("lat")
+                            val tlong = obj.getString("lon")
+                            targetPos = GeoPoint(tlat.toDouble(), tlong.toDouble())
+
+                            val waypoints = ArrayList<GeoPoint>()
+                            while (init) {
+                            } // y a surement mieux
+                            //while (!this::targetPos.isInitialized) {}
+                            waypoints.add(firstMarker!!.position)
+                            waypoints.add(targetPos)
+                            val road = roadManager.getRoad(waypoints)
+                            if (this@Driving::roadOverlay.isInitialized) {
+                                map.overlays.remove(roadOverlay)
+                            }
+                            roadOverlay = RoadManager.buildRoadOverlay(road)
+                            roadOverlay.outlinePaint.color = Color.rgb(250, 0, 255)
+                            roadOverlay.outlinePaint.strokeWidth = 15.0F
+                            map.overlays.add(roadOverlay)
+                            runOnUiThread {
+                                btnFin.visibility = View.VISIBLE
+                                hideKeyboard(this@Driving)
+                            }
+                            map.invalidate()
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    // hide soft keyboard programmatically
+                    //hideSoftKeyboard()
+
+                    // clear focus and hide cursor from edit text
+                    //editText.clearFocus()
+                    //editText.isCursorVisible = false
+
+                    return true
+                }
+                return false
+            }
+        })
+
     }
 
     fun onCentrerClick(v: View?) {
@@ -213,8 +279,26 @@ class Driving : AppCompatActivity() {
         btnCentre.visibility = View.INVISIBLE
     }
 
+    fun onFinClick(v: View?) {
+        btnFin.visibility = View.INVISIBLE
+        map.overlays.remove(roadOverlay)
+        map.invalidate()
+        txtAddress.text.clear()
+    }
     private fun doAsync(f: () -> Unit) {
         Thread { f() }.start()
+    }
+
+    fun hideKeyboard(activity: Activity) {
+        val imm: InputMethodManager =
+            activity.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = activity.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(activity)
+        }
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     fun distance(
