@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.StrictMode
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -50,13 +49,9 @@ import kotlin.math.sqrt
 
 
 /*
-1. Barre de recherche navigation
-2. Bouton de fin de navigation
-3. affichage instructions
-4. affichage vitesse -- ok
-5. bouton fin de liberté pour la carte -- ok
-
-6. effacer le chemin déjà parcouru ?
+1. affichage instructions
+2. effacer le trajet effectué ?
+3. recalculer en cas de sortie de l'itinéraire
  */
 class Driving : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -64,8 +59,6 @@ class Driving : AppCompatActivity() {
     private var previousLong : Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
-    private var firstMarker: Marker?=null
-    private var init:Boolean = true
     private var tabSpeed : MutableList<Double> = mutableListOf(0.0)
     private var previousTime : Long = 0L
     private var time : Long = 0L
@@ -91,17 +84,10 @@ class Driving : AppCompatActivity() {
         setContentView(R.layout.activity_driving)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         map = findViewById(R.id.mapview)
-
-        doAsync {
-
-        }
         btnCentre = findViewById(R.id.btnCentre)
         btnFin = findViewById(R.id.btnFin)
         txtAddress = findViewById(R.id.txtAddress)
-
         map.setTileSource(TileSourceFactory.MAPNIK)
-        firstMarker = Marker(map)
-
         map.addMapListener(DelayedMapListener(object : MapListener {
             override fun onZoom(e: ZoomEvent): Boolean {
                 //do something
@@ -191,17 +177,10 @@ class Driving : AppCompatActivity() {
                         previousLong = longitude
                         previousTime = time
                     }
-                    firstMarker!!.position = GeoPoint(latitude, longitude)
-                    firstMarker!!.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    if (init) {
-                        //mapController.setCenter(GeoPoint(latitude, longitude))
-                        //mapController.setCenter(GeoPoint(45.78312, 4.87758))
-                        //map.overlays.add(firstMarker)
-                        init = false
-                    }
+
                     if (!freeCam) {
                         mapController.animateTo(
-                            firstMarker!!.position,
+                            GeoPoint(latitude, longitude),
                             map.zoomLevelDouble,
                             100,
                             -compassOverlay.orientation
@@ -230,17 +209,14 @@ class Driving : AppCompatActivity() {
                             URL("https://nominatim.openstreetmap.org/search.php?q=" + txtAddress.text + "&format=json").readText()
                         try {
                             jsonObject = JSONArray(route)
-                            Log.d("TAG", "ok")
                             val obj: JSONObject = jsonObject!!.get(0) as JSONObject
                             val tlat = obj.getString("lat")
                             val tlong = obj.getString("lon")
                             targetPos = GeoPoint(tlat.toDouble(), tlong.toDouble())
 
                             val waypoints = ArrayList<GeoPoint>()
-                            while (init) {
-                            } // y a surement mieux
-                            //while (!this::targetPos.isInitialized) {}
-                            waypoints.add(firstMarker!!.position)
+                            while (!this@Driving::targetPos.isInitialized) {}
+                            waypoints.add(GeoPoint(latitude, longitude))
                             waypoints.add(targetPos)
                             val road = roadManager.getRoad(waypoints)
                             if (this@Driving::roadOverlay.isInitialized) {
@@ -259,14 +235,6 @@ class Driving : AppCompatActivity() {
                             e.printStackTrace()
                         }
                     }
-
-                    // hide soft keyboard programmatically
-                    //hideSoftKeyboard()
-
-                    // clear focus and hide cursor from edit text
-                    //editText.clearFocus()
-                    //editText.isCursorVisible = false
-
                     return true
                 }
                 return false
