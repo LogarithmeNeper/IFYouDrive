@@ -21,8 +21,7 @@
             android:name=".EvaluateReaction"
             android:parentActivityName=".EvaluateRisks"/>
         <activity
-            android:name=".TitlePage"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+            android:name=".TitlePage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -31,8 +30,7 @@
         <activity 
             android:name=".Driving"
             android:screenOrientation="portrait"
-            android:parentActivityName=".EvaluateReaction"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+            android:parentActivityName=".EvaluateReaction"/>
         <activity 
             android:name=".EvaluateRisks" 
             android:parentActivityName=".AlcoholForm"/>

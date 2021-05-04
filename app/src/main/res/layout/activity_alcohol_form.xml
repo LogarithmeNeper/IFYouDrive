@@ -8,13 +8,15 @@
     tools:context=".TitlePage"
     android:orientation="vertical">
 
-    <ScrollView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,146 +24,154 @@
         android:textSize="23sp"
         android:text="Auto-évaluation de l'alcoolémie du conducteur"/>
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Je suis biologiquement :"/>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    <RadioGroup
-        android:id="@+id/sex_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Je suis biologiquement :"/>
 
-        <RadioButton
-            android:id="@+id/male_sex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Un homme"/>
+            <RadioGroup
+                android:id="@+id/sex_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
 
-        <RadioButton
-            android:id="@+id/female_sex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Une femme"/>
-    </RadioGroup>
+                <RadioButton
+                    android:id="@+id/male_sex"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Un homme"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Je pèse : (en kg)"/>
+                <RadioButton
+                    android:id="@+id/female_sex"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Une femme"/>
+            </RadioGroup>
 
-    <EditText
-        android:id="@+id/weight"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:inputType="number"
-        android:hint="70"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Je pèse : (en kg)"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Nombre de bières (25 cL, 7°) consommées :"/>
+            <EditText
+                android:id="@+id/weight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:inputType="number"
+                android:hint="70"/>
 
-    <EditText
-        android:id="@+id/beers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:inputType="number"
-        android:hint="0"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Nombre de bières (25 cL, 7°) consommées :"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Nombre de verres de vin (10 cL, 12°) consommés :"/>
+            <EditText
+                android:id="@+id/beers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:inputType="number"
+                android:hint="0"/>
 
-    <EditText
-        android:id="@+id/wine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:inputType="number"
-        android:hint="0"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Nombre de verres de vin (10 cL, 12°) consommés :"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Nombre de spiritueux (3 cL, 40°) consommés :"/>
+            <EditText
+                android:id="@+id/wine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:inputType="number"
+                android:hint="0"/>
 
-    <EditText
-        android:id="@+id/spirits"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:inputType="number"
-        android:hint="0"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Nombre de spiritueux (3 cL, 40°) consommés :"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="J'ai consommé de la drogue : "/>
+            <EditText
+                android:id="@+id/spirits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:inputType="number"
+                android:hint="0"/>
 
-    <RadioGroup
-        android:id="@+id/drugs_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="J'ai consommé de la drogue : "/>
 
-        <RadioButton
-            android:id="@+id/yes_drugs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Oui"/>
+            <RadioGroup
+                android:id="@+id/drugs_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
 
-        <RadioButton
-            android:id="@+id/no_drugs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Non"/>
-    </RadioGroup>
+                <RadioButton
+                    android:id="@+id/yes_drugs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oui"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10sp"
-        android:text="Jeune conducteur.trice, période probatoire, ... ?"/>
+                <RadioButton
+                    android:id="@+id/no_drugs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Non"/>
+            </RadioGroup>
 
-    <RadioGroup
-        android:id="@+id/threshold_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:text="Jeune conducteur.trice, période probatoire, ... ?"/>
 
-        <RadioButton
-            android:id="@+id/yes_threshold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Oui"/>
+            <RadioGroup
+                android:id="@+id/threshold_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
 
-        <RadioButton
-            android:id="@+id/no_threshold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Non"/>
-    </RadioGroup>
+                <RadioButton
+                    android:id="@+id/yes_threshold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oui"/>
 
-    <Button
-        android:id="@+id/evaluate_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Évaluer"/>
+                <RadioButton
+                    android:id="@+id/no_threshold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Non"/>
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/evaluate_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Évaluer"/>
 
         </LinearLayout>
     </ScrollView>
