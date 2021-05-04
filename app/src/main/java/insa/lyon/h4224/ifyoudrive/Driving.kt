@@ -8,10 +8,7 @@ import android.graphics.Color
 import android.location.Location
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.os.Build
-import android.os.Bundle
-import android.os.Looper
-import android.os.StrictMode
+import android.os.*
 import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
 import android.util.Log
@@ -28,6 +25,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
+import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.DelayedMapListener
@@ -300,27 +298,62 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                     btnFin.visibility = View.VISIBLE
                     layoutAddress.visibility = View.GONE
                     layoutRouting.visibility = View.VISIBLE
-                    val rn = Calendar.getInstance()
-                    rn.add(Calendar.SECOND, road.mDuration.toInt() + 600) // Je-
-                    txtTime.text = java.lang.String.format(
-                        "%02d",
-                        rn.get(Calendar.HOUR_OF_DAY)
-                    ) + ":" + java.lang.String.format(
-                        "%02d", rn.get(
-                            Calendar.MINUTE
-                        )
-                    )
-                    val distance = road.mNodes.get(0).mLength
-                    if (distance > 1)
-                        txtLength.text = distance.toInt().toString() + "km"
-                    else
-                        txtLength.text = (distance * 1000).toInt().toString() + "m"
-                    imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
-                    synthese(road.mNodes.get(0).mInstructions)
                 }
+                handleRoute(road)
                 map.invalidate()
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * update informations when reaching a node
+     */
+    private fun handleRoute(road: Road) {
+        var timeup = false
+        var reload = false
+        for (i in road.mNodes.indices) {
+            if (btnFin.visibility != View.VISIBLE || reload)
+                break
+            when (road.mNodes[i].mManeuverType) {
+                1 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
+                6 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_right))
+                7 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_right))
+                8 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_sharp_right))
+                5 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_sharp_left))
+                4 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_left))
+                3 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_left))
+                24 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_arrived))
+                else -> { imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_empty))}
+            }
+            val rn = Calendar.getInstance()
+            var tempsRestant  = 0.0
+            for (j in i..road.mNodes.size) {
+                tempsRestant += road.mNodes[i].mDuration
+            }
+            rn.add(Calendar.SECOND, tempsRestant.toInt())
+            txtTime.text = java.lang.String.format(
+                "%02d",
+                rn.get(Calendar.HOUR_OF_DAY)
+            ) + ":" + java.lang.String.format(
+                "%02d", rn.get(
+                    Calendar.MINUTE
+                )
+            )
+            synthese(road.mNodes[i].mInstructions)
+            var distanceNode = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
+            while (btnFin.visibility == View.VISIBLE && road.mNodes[i].mLocation.distanceToAsDouble(GeoPoint(latitude,longitude)) > 20.0) {
+                val distance = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
+                if (distance > 1000)
+                    txtLength.text = (distance / 1000).toInt().toString() + "km"
+                else
+                    txtLength.text = distance.toInt().toString() + "m"
+                if (GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation) > distanceNode + 30) {
+                    computeRoute()
+                    reload = true
+                    break
+                }
             }
         }
     }
