@@ -2,6 +2,7 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.app.Activity
+import android.app.VoiceInteractor
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -15,6 +16,11 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.view.textclassifier.TextLinks
+import android.view.textclassifier.TextSelection
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +48,16 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.*
+import java.net.HttpURLConnection
+import kotlin.math.*
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sqrt
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -187,6 +203,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val textField: TextView = findViewById(R.id.textSpeedDriving)
+
+                // Test getting speed limits
+                // End of test
                 // Checking if the location permission is granted, otherwise looping
                 while (ActivityCompat.checkSelfPermission(
                         this@Driving,
@@ -217,8 +236,18 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
+                                val maxSpeed = getSpeedLimit(latitude, longitude)
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
+                                //textField.text = "$maxSpeed km/h"
+                                if(meanSpeed.toInt() > maxSpeed)
+                                {
+                                    textField.setTextColor(Color.RED)
+                                }
+                                else
+                                {
+                                    textField.setTextColor(Color.BLACK)
+                                }
                             }
                         }
                         previousLat = latitude
@@ -442,5 +471,106 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         } else {
             Log.e("TTS", "Initialization Failed!")
         }
+    }
+
+    fun performPostCall(
+        requestURL: String?,
+        data: String?
+    ): String {
+        val url: URL
+        var response: String = ""
+        try {
+            url = URL(requestURL)
+            val conn =
+                url.openConnection() as HttpURLConnection
+            conn.readTimeout = 15000
+            conn.connectTimeout = 15000
+            conn.requestMethod = "POST"
+            conn.doInput = true
+            conn.doOutput = true
+            val os = conn.outputStream
+            val writer = BufferedWriter(
+                OutputStreamWriter(os, "UTF-8")
+            )
+            writer.write(data)
+            writer.flush()
+            writer.close()
+            os.close()
+            val responseCode = conn.responseCode
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                var line: String?
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                while (br.readLine().also { line = it } != null) {
+                    response += line
+                }
+            } else {
+                response = ""
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return response
+    }
+
+    fun getSpeedLimit (latitude : Double, longitude : Double) : Int
+    {
+        var maxSpeed = 1000
+        var maxSpeedObtained = false
+        doAsync {
+            val data: String = """
+            <query type="way">
+                <around radius="10" lat="${latitude}" lon="${longitude}" />
+                <has-kv k="maxspeed" />
+            </query>
+
+            <!-- added by auto repair -->
+            <union>
+                <item/>
+                <recurse type="down"/>
+            </union>
+            <!-- end of auto repair -->
+            <print/></osm-script>'
+            """
+            var response = ""
+            var speedNotFound = true
+
+            response = performPostCall("http://overpass-api.de/api/interpreter", data)
+
+            while (response == "") {
+                Thread.sleep(1)
+            }
+            val factory = XmlPullParserFactory.newInstance()
+            factory.isNamespaceAware = true
+            val xpp = factory.newPullParser()
+
+            xpp.setInput(StringReader(response))
+            var eventType = xpp.eventType
+            while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (xpp.name == "way") {
+                        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                            if (eventType == XmlPullParser.START_TAG) {
+                                if (xpp.name == "tag") {
+                                    if (xpp.getAttributeValue(0) == "maxspeed") {
+                                        maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
+                                        speedNotFound = false
+                                        maxSpeedObtained = true
+                                    }
+                                }
+                            }
+                            eventType = xpp.next()
+                        }
+                    }
+                }
+                if (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = xpp.next()
+                }
+            }
+        }
+        while(!maxSpeedObtained)
+        {
+            Thread.sleep(1)
+        }
+        return maxSpeed
     }
 }
