@@ -99,6 +99,7 @@ class Driving : AppCompatActivity() {
         line = csvReader.readNext()
     }
 
+
     /**
      * Function used when creating the window at the beginning.
      * Uses the template of the activity as it is defined in ~/res/layout/activity_driving.
