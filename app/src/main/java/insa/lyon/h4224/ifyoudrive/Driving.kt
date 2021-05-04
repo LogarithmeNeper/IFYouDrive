@@ -90,14 +90,14 @@ class Driving : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // You can of course remove the .withCSVParser part if you use the default separator instead of ;
-        val csvReader = CSVReaderBuilder(FileReader("C:/Users/pduja/Desktop/4IF/S2/clusterized_accidents_2017_2018_2019.csv"))
+        val csvReader = CSVReaderBuilder(FileReader("../../../../../assets/clusterized_accidents_2017-2018-2019_lyon.csv"))
             .withCSVParser(CSVParserBuilder().withSeparator(';').build())
             .build()
 
         val header = csvReader.readNext()
 
         var line: Array<String>? = csvReader.readNext()
-        var points: ArrayList<Pair<Double,Double>>
+        var points: ArrayList<Pair<Double,Double>> = ArrayList()
 
         while (line != null) {
             // Do something with the data
