@@ -77,7 +77,7 @@ class Driving : AppCompatActivity() {
     private lateinit var targetPos : GeoPoint
     private lateinit var txtAddress : EditText
     private lateinit var roadOverlay : Polyline
-    private  lateinit var btnFin : Button
+    private lateinit var btnFin : Button
     private lateinit var map : MapView
     private lateinit var layoutAddress : TextInputLayout
 
