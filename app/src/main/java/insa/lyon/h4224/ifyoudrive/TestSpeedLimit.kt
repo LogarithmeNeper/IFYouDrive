@@ -3,10 +3,13 @@ package insa.lyon.h4224.ifyoudrive
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
+
 
 class TestSpeedLimit : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +30,9 @@ class TestSpeedLimit : AppCompatActivity() {
             <!-- end of auto repair -->
             <print/></osm-script>'
             """
-            var response = ""
+        var response = ""
+        var maxSpeed = 1000
+        var speedNotFound = true
 
 
 
@@ -39,6 +44,47 @@ class TestSpeedLimit : AppCompatActivity() {
         {
             Thread.sleep(1)
         }
+        val factory = XmlPullParserFactory.newInstance()
+        factory.isNamespaceAware = true
+        val xpp = factory.newPullParser()
+
+        xpp.setInput(StringReader(response))
+        var eventType = xpp.eventType
+        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT)
+        {
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                if (xpp.name == "way")
+                {
+                    println("found way!")
+                    while(speedNotFound && eventType != XmlPullParser.END_DOCUMENT)
+                    {
+                        if(eventType == XmlPullParser.START_TAG)
+                        {
+                            if(xpp.name == "tag")
+                            {
+                                println("found tag !!!")
+                                println("property k : ${xpp.getProperty("k")}, property v : ${xpp.getProperty("v")}")
+                                println("attribute of xpp : ${xpp.getAttributeName(0)}")
+                                if (xpp.getAttributeValue(0) == "maxspeed")
+                                {
+                                    println("max speed")
+                                    maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
+                                    speedNotFound = false
+                                }
+                            }
+                        }
+                        eventType = xpp.next()
+                        println("name of next tag = ${xpp.name}, property k of next tag : ${xpp.getProperty("k")}")
+                    }
+                }
+            }
+            if(eventType != XmlPullParser.END_DOCUMENT)
+            {
+                eventType = xpp.next()
+            }
+        }
+        println("End document, max speed is $maxSpeed")
         textField.text = response
 
     }

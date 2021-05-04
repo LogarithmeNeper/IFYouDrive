@@ -45,8 +45,14 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
 import kotlin.math.*
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -324,5 +330,44 @@ class Driving : AppCompatActivity() {
         val a: Double = (sin((diffLat/2.0)*(Math.PI/180.0))).pow(2) + cos(latA*(Math.PI/180.0)) * cos(latB*(Math.PI/180.0)) * (sin((diffLong/2.0)*(Math.PI/180.0))).pow(2)
         val c: Double = 2 * atan2(sqrt(a), sqrt(1-a))
         return R*c
+    }
+
+    fun performPostCall(
+        requestURL: String?,
+        data: String?
+    ): String {
+        val url: URL
+        var response: String = ""
+        try {
+            url = URL(requestURL)
+            val conn =
+                url.openConnection() as HttpURLConnection
+            conn.readTimeout = 15000
+            conn.connectTimeout = 15000
+            conn.requestMethod = "POST"
+            conn.doInput = true
+            conn.doOutput = true
+            val os = conn.outputStream
+            val writer = BufferedWriter(
+                OutputStreamWriter(os, "UTF-8")
+            )
+            writer.write(data)
+            writer.flush()
+            writer.close()
+            os.close()
+            val responseCode = conn.responseCode
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                var line: String?
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                while (br.readLine().also { line = it } != null) {
+                    response += line
+                }
+            } else {
+                response = ""
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return response
     }
 }
