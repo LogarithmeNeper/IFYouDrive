@@ -81,24 +81,6 @@ class Driving : AppCompatActivity() {
     private lateinit var map : MapView
     private lateinit var layoutAddress : TextInputLayout
 
-    // You can of course remove the .withCSVParser part if you use the default separator instead of ;
-    val csvReader = CSVReaderBuilder(FileReader("C:/Users/pduja/Desktop/4IF/S2/clusterized_accidents_2017_2018_2019.csv"))
-        .withCSVParser(CSVParserBuilder().withSeparator(';').build())
-        .build()
-
-    // Maybe do something with the header if there is one
-    val header = csvReader.readNext()
-
-    // Read the rest
-    var line: Array<String>? = csvReader.readNext()
-    while (line != null) {
-        // Do something with the data
-        val latitude : Double line[0]
-        val longitude : Double line[1]
-
-        line = csvReader.readNext()
-    }
-
     /**
      * Function used when creating the window at the beginning.
      * Uses the template of the activity as it is defined in ~/res/layout/activity_driving.
@@ -106,6 +88,25 @@ class Driving : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // You can of course remove the .withCSVParser part if you use the default separator instead of ;
+        val csvReader = CSVReaderBuilder(FileReader("C:/Users/pduja/Desktop/4IF/S2/clusterized_accidents_2017_2018_2019.csv"))
+            .withCSVParser(CSVParserBuilder().withSeparator(';').build())
+            .build()
+
+        val header = csvReader.readNext()
+
+        var line: Array<String>? = csvReader.readNext()
+        var points: ArrayList<Pair<Double,Double>>
+
+        while (line != null) {
+            // Do something with the data
+            val latitude : Double = line[0].toDouble()
+            val longitude : Double = line[1].toDouble()
+            points.add(Pair(latitude,longitude))
+
+            line = csvReader.readNext()
+        }
 
         // Getting the shared preferences
         Configuration.getInstance().load(
