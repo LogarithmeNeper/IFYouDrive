@@ -3,6 +3,7 @@ package insa.lyon.h4224.ifyoudrive
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -22,6 +23,8 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.material.textfield.TextInputLayout
 import com.opencsv.CSVParserBuilder
+import com.opencsv.CSVReader
+import com.opencsv.CSVReaderBuilder
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -44,10 +47,9 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.io.InputStreamReader
 import java.net.URL
 import kotlin.math.*
-import com.opencsv.CSVReaderBuilder
-import java.io.FileReader
 
 
 /**
@@ -89,23 +91,17 @@ class Driving : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // You can of course remove the .withCSVParser part if you use the default separator instead of ;
-        val csvReader = CSVReaderBuilder(FileReader("../../../../../assets/clusterized_accidents_2017-2018-2019_lyon.csv"))
-            .withCSVParser(CSVParserBuilder().withSeparator(';').build())
-            .build()
+        val am: AssetManager = this.assets
+        val ISReader : InputStreamReader = am.open("clusterized_accidents_2017_2018_2019_lyon.csv") as InputStreamReader
+        val csv = CSVReaderBuilder(ISReader).withCSVParser(CSVParserBuilder().withSeparator(';').build()).build()
 
-        val header = csvReader.readNext()
+        val header = csv.readNext()
+        var line: Array<String>? = csv.readNext()
+        val points: ArrayList<Pair<Double,Double>> = ArrayList()
 
-        var line: Array<String>? = csvReader.readNext()
-        var points: ArrayList<Pair<Double,Double>> = ArrayList()
-
-        while (line != null) {
-            // Do something with the data
-            val latitude : Double = line[0].toDouble()
-            val longitude : Double = line[1].toDouble()
-            points.add(Pair(latitude,longitude))
-
-            line = csvReader.readNext()
+        while(line!=null) {
+            points.add(Pair(line[0].toDouble(), line[1].toDouble()))
+            line=csv.readNext()
         }
 
 
