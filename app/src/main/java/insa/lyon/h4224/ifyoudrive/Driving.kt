@@ -17,6 +17,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -47,8 +48,11 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.io.BufferedReader
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.URL
+import java.nio.Buffer
 import kotlin.math.*
 
 
@@ -91,23 +95,6 @@ class Driving : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // In fact, nothing working here
-        // TODO : Debug everything we do lines 97 --> 108
-        /*
-        val am: AssetManager = this.assets
-        val ISReader : InputStreamReader = am.open("clusterized_accidents_2017_2018_2019_lyon.csv") as InputStreamReader
-        val csv = CSVReaderBuilder(ISReader).withCSVParser(CSVParserBuilder().withSeparator(';').build()).build()
-
-        val header = csv.readNext()
-        var line: Array<String>? = csv.readNext()
-        val points: ArrayList<Pair<Double,Double>> = ArrayList()
-
-        while(line!=null) {
-            points.add(Pair(line[0].toDouble(), line[1].toDouble()))
-            line=csv.readNext()
-        }
-         */
-
         // Getting the shared preferences
         Configuration.getInstance().load(
             this, androidx.preference.PreferenceManager.getDefaultSharedPreferences(
@@ -117,6 +104,18 @@ class Driving : AppCompatActivity() {
 
         // Use of template
         setContentView(R.layout.activity_driving)
+
+        val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
+        val reader = cin.bufferedReader()
+
+        var points : ArrayList<Pair<Double, Double>> = ArrayList()
+        reader.forEachLine {
+                line ->
+            var splittedline = line.split(";")
+            points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+        }
+
+        Toast.makeText(this@Driving, points[0].first.toString(), Toast.LENGTH_SHORT)
 
         // Getting the position.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
