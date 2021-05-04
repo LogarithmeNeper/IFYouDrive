@@ -95,7 +95,8 @@ class Driving : AppCompatActivity() {
         val ISReader : InputStreamReader = am.open("clusterized_accidents_2017_2018_2019_lyon.csv") as InputStreamReader
         val csv = CSVReaderBuilder(ISReader).withCSVParser(CSVParserBuilder().withSeparator(';').build()).build()
 
-        val header = csv.readNext()
+        // TODO : Make this thing work (even line 96 in fact)
+        /* val header = csv.readNext()
         var line: Array<String>? = csv.readNext()
         val points: ArrayList<Pair<Double,Double>> = ArrayList()
 
@@ -103,6 +104,7 @@ class Driving : AppCompatActivity() {
             points.add(Pair(line[0].toDouble(), line[1].toDouble()))
             line=csv.readNext()
         }
+        */
 
         // Getting the shared preferences
         Configuration.getInstance().load(
