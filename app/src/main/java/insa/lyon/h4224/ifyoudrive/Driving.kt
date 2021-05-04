@@ -3,19 +3,22 @@ package insa.lyon.h4224.ifyoudrive
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.os.StrictMode
+import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -25,7 +28,6 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
-import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.DelayedMapListener
@@ -36,7 +38,6 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.util.TileSystem
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
@@ -44,6 +45,8 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import java.net.URL
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.*
 
 
@@ -54,29 +57,34 @@ import kotlin.math.*
  * Working GPS using Graphhopper and Nominatim.
  * Yet to do : alerts, path recompute, erase past line.
  */
-class Driving : AppCompatActivity() {
+class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     // In order to get the position
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // Global variables
-    private var previousLat : Double = 0.0
-    private var previousLong : Double = 0.0
+    private var previousLat: Double = 0.0
+    private var previousLong: Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
-    private var tabSpeed : MutableList<Double> = mutableListOf(0.0)
-    private var previousTime : Long = 0L
-    private var time : Long = 0L
-    private lateinit var mLocationOverlay : MyLocationNewOverlay
-    private lateinit var btnCentre : Button
+    private var tabSpeed: MutableList<Double> = mutableListOf(0.0)
+    private var previousTime: Long = 0L
+    private var time: Long = 0L
+    private lateinit var mLocationOverlay: MyLocationNewOverlay
+    private lateinit var btnCentre: Button
     private var freeCam = false
-    private lateinit var route : String
+    private lateinit var route: String
     private var jsonObject: JSONArray? = null
-    private lateinit var targetPos : GeoPoint
-    private lateinit var txtAddress : EditText
-    private lateinit var roadOverlay : Polyline
-    private  lateinit var btnFin : Button
-    private lateinit var map : MapView
-    private lateinit var layoutAddress : TextInputLayout
+    private lateinit var targetPos: GeoPoint
+    private lateinit var txtAddress: EditText
+    private lateinit var roadOverlay: Polyline
+    private lateinit var btnFin: Button
+    private lateinit var map: MapView
+    private lateinit var layoutAddress: TextInputLayout
+    private lateinit var layoutRouting: LinearLayout
+    private lateinit var txtLength: TextView
+    private lateinit var txtTime: TextView
+    private lateinit var imgRoute: ImageView
+    var tts: TextToSpeech? = null
 
     /**
      * Function used when creating the window at the beginning.
@@ -96,6 +104,9 @@ class Driving : AppCompatActivity() {
         // Use of template
         setContentView(R.layout.activity_driving)
 
+        //tts
+        tts = TextToSpeech(this, this)
+
         // Getting the position.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         map = findViewById(R.id.mapview)
@@ -103,14 +114,17 @@ class Driving : AppCompatActivity() {
         btnFin = findViewById(R.id.btnFin)
         txtAddress = findViewById(R.id.txtAddress)
         layoutAddress = findViewById(R.id.layoutAddress)
+        layoutRouting = findViewById(R.id.layoutRouting)
+        txtLength = findViewById(R.id.txtLength)
+        txtTime = findViewById(R.id.txtTime)
+        imgRoute = findViewById(R.id.imgRoute)
+
 
         // Using the Tilesourcefactory of OSM.
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.addMapListener(DelayedMapListener(object : MapListener {
             // When zooming
             override fun onZoom(e: ZoomEvent): Boolean {
-                btnCentre.visibility = View.VISIBLE
-                freeCam = true
                 return true
             }
 
@@ -123,8 +137,10 @@ class Driving : AppCompatActivity() {
                 return true
             }
         }, 100))
-        map.minZoomLevel = 5.0 //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
-        map.maxZoomLevel = 20.0 //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
+        map.minZoomLevel =
+            5.0 //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
+        map.maxZoomLevel =
+            20.0 //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
         map.isVerticalMapRepetitionEnabled = false
         map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0)
         val mapController = map.controller
@@ -132,7 +148,12 @@ class Driving : AppCompatActivity() {
         mapController.setZoom(18.0)
         mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), map)
         mLocationOverlay.enableMyLocation()
-        //mLocationOverlay.setPersonIcon(R.drawable.marker_car_on) // pour remplacer le poti bonhomme par une potite voiture
+        mLocationOverlay.setPersonIcon(
+            BitmapFactory.decodeResource(
+                resources,
+                R.drawable.marker_car_on
+            )
+        ) // pour remplacer le poti bonhomme par une potite voiture
         map.overlays.add(this.mLocationOverlay)
 
         // added the possibility to rotate the map
@@ -147,16 +168,20 @@ class Driving : AppCompatActivity() {
         map.overlays.add(compassOverlay)
 
         // Added for a scale bar at the top of the screen
-        val dm : DisplayMetrics = this.resources.displayMetrics
+        val dm: DisplayMetrics = this.resources.displayMetrics
         val mScaleBarOverlay = ScaleBarOverlay(map)
         mScaleBarOverlay.setCentred(true)
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10)
         map.overlays.add(mScaleBarOverlay)
 
-        val request : LocationRequest = LocationRequest.create()
+        val request: LocationRequest = LocationRequest.create()
         request.interval = 100
         request.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        while (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        while (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
 
@@ -258,7 +283,8 @@ class Driving : AppCompatActivity() {
         doAsync {
             try {
                 val waypoints = ArrayList<GeoPoint>()
-                while (!this@Driving::targetPos.isInitialized) {}
+                while (!this@Driving::targetPos.isInitialized) {
+                }
                 waypoints.add(GeoPoint(latitude, longitude))
                 waypoints.add(targetPos)
                 val road = roadManager.getRoad(waypoints)
@@ -272,27 +298,25 @@ class Driving : AppCompatActivity() {
                 runOnUiThread {
                     hideKeyboard(this@Driving)
                     btnFin.visibility = View.VISIBLE
-                    layoutAddress.visibility = View.INVISIBLE
-
-                    val nodeIcon = resources.getDrawable(R.drawable.marker_node)
-                    for (i in 0 until road.mNodes.size) {
-                        val node = road.mNodes[i]
-                        val nodeMarker = Marker(map)
-                        nodeMarker.position = node.mLocation
-                        nodeMarker.icon = nodeIcon
-                        nodeMarker.title = "Step $i"
-                        nodeMarker.setSnippet(node.mInstructions)
-                        nodeMarker.setSubDescription(
-                            Road.getLengthDurationText(
-                                this,
-                                node.mLength,
-                                node.mDuration
-                            )
+                    layoutAddress.visibility = View.GONE
+                    layoutRouting.visibility = View.VISIBLE
+                    val rn = Calendar.getInstance()
+                    rn.add(Calendar.SECOND, road.mDuration.toInt() + 600) // Je-
+                    txtTime.text = java.lang.String.format(
+                        "%02d",
+                        rn.get(Calendar.HOUR_OF_DAY)
+                    ) + ":" + java.lang.String.format(
+                        "%02d", rn.get(
+                            Calendar.MINUTE
                         )
-                        //val icon = resources.getDrawable(R.drawable.ic_continue)
-                        //nodeMarker.image = icon
-                        map.overlays.add(nodeMarker)
-                    }
+                    )
+                    val distance = road.mNodes.get(0).mLength
+                    if (distance > 1)
+                        txtLength.text = distance.toInt().toString() + "km"
+                    else
+                        txtLength.text = (distance * 1000).toInt().toString() + "m"
+                    imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
+                    synthese(road.mNodes.get(0).mInstructions)
                 }
                 map.invalidate()
             } catch (e: Exception) {
@@ -308,14 +332,35 @@ class Driving : AppCompatActivity() {
         freeCam = false
         btnCentre.visibility = View.INVISIBLE
     }
-    fun onFinClick(v: View?) {
+
+    /**
+     * Called when a route is over or interrupted
+     */
+    fun routeDone() {
         btnFin.visibility = View.INVISIBLE
         layoutAddress.visibility = View.VISIBLE
+        layoutRouting.visibility = View.GONE
+
         map.overlays.remove(roadOverlay)
         map.invalidate()
         txtAddress.text.clear()
     }
-                                                   
+
+    /**
+     * When user want to interrupt a route
+     */
+    fun onFinClick(v: View?) {
+        routeDone()
+    }
+
+    /**
+     * Function to speak route instructions
+     */
+
+    private  fun synthese(voice:String) {
+        tts!!.speak(voice,TextToSpeech.QUEUE_FLUSH, null)
+    }
+
     /**
      * Utility function for asyncronous tasks.
      */
@@ -334,7 +379,7 @@ class Driving : AppCompatActivity() {
         }
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
-                                                   
+
     /**
      * Function to calculate the distance between two points with latitude/longitude.
      */
@@ -343,15 +388,26 @@ class Driving : AppCompatActivity() {
         longA: Double,
         latB: Double,
         longB: Double
-    ): Double
-    {
+    ): Double {
         val R = 6371000
         val diffLat: Double = latB - latA
         val diffLong: Double = longB - longA
-        val a: Double = (sin((diffLat / 2.0) * (Math.PI / 180.0))).pow(2) + cos(latA * (Math.PI / 180.0)) * cos(
-            latB * (Math.PI / 180.0)
-        ) * (sin((diffLong / 2.0) * (Math.PI / 180.0))).pow(2)
+        val a: Double =
+            (sin((diffLat / 2.0) * (Math.PI / 180.0))).pow(2) + cos(latA * (Math.PI / 180.0)) * cos(
+                latB * (Math.PI / 180.0)
+            ) * (sin((diffLong / 2.0) * (Math.PI / 180.0))).pow(2)
         val c: Double = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return R*c
+        return R * c
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts!!.setLanguage(Locale.FRANCE)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "The Language specified is not supported!")
+            }
+        } else {
+            Log.e("TTS", "Initialization Failed!")
+        }
     }
 }
