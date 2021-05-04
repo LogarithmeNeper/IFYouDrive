@@ -108,6 +108,7 @@ class Driving : AppCompatActivity() {
             line = csvReader.readNext()
         }
 
+
         // Getting the shared preferences
         Configuration.getInstance().load(
             this, androidx.preference.PreferenceManager.getDefaultSharedPreferences(
