@@ -2,6 +2,7 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.app.Activity
+import android.app.VoiceInteractor
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -14,6 +15,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.view.textclassifier.TextLinks
+import android.view.textclassifier.TextSelection
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -156,6 +159,12 @@ class Driving : AppCompatActivity() {
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val textField: TextView = findViewById(R.id.textSpeedDriving)
+
+
+                // Test getting speed limits
+
+                // End of test
+
                 while (ActivityCompat.checkSelfPermission(
                         this@Driving,
                         Manifest.permission.ACCESS_FINE_LOCATION
