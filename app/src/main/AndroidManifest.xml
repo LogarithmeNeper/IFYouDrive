@@ -17,24 +17,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
-        <activity android:name=".EvaluateReaction" 
+        <activity
+            android:name=".EvaluateReaction"
             android:parentActivityName=".EvaluateRisks"/>
-        <activity 
-            android:name=".Driving"
-            android:screenOrientation="portrait">
+        <activity
+            android:name=".TitlePage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity 
+            android:name=".Driving"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".EvaluateReaction"/>
         <activity 
             android:name=".EvaluateRisks" 
             android:parentActivityName=".AlcoholForm"/>
         <activity
             android:name=".AlcoholForm"
-            android:parentActivityName=".EvaluateReaction"
-            android:label="IFYouDrive">
+            android:parentActivityName=".TitlePage">
         </activity>
     </application>
 
