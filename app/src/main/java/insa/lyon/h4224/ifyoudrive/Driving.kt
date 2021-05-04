@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.material.textfield.TextInputLayout
+import com.opencsv.CSVParserBuilder
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -45,6 +46,8 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import java.net.URL
 import kotlin.math.*
+import com.opencsv.CSVReaderBuilder
+import java.io.FileReader
 
 
 /**
@@ -77,6 +80,24 @@ class Driving : AppCompatActivity() {
     private  lateinit var btnFin : Button
     private lateinit var map : MapView
     private lateinit var layoutAddress : TextInputLayout
+
+    // You can of course remove the .withCSVParser part if you use the default separator instead of ;
+    val csvReader = CSVReaderBuilder(FileReader("C:/Users/pduja/Desktop/4IF/S2/clusterized_accidents_2017_2018_2019.csv"))
+        .withCSVParser(CSVParserBuilder().withSeparator(';').build())
+        .build()
+
+    // Maybe do something with the header if there is one
+    val header = csvReader.readNext()
+
+    // Read the rest
+    var line: Array<String>? = csvReader.readNext()
+    while (line != null) {
+        // Do something with the data
+        val latitude : Double line[0]
+        val longitude : Double line[1]
+
+        line = csvReader.readNext()
+    }
 
     /**
      * Function used when creating the window at the beginning.
