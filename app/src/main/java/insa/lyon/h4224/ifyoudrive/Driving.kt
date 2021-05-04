@@ -2,9 +2,7 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.app.Activity
-import android.app.VoiceInteractor
 import android.content.pm.PackageManager
-import android.content.res.AssetManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
@@ -15,8 +13,6 @@ import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.view.textclassifier.TextLinks
-import android.view.textclassifier.TextSelection
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -26,9 +22,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.material.textfield.TextInputLayout
-import com.opencsv.CSVParserBuilder
-import com.opencsv.CSVReader
-import com.opencsv.CSVReaderBuilder
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -55,17 +48,8 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
 import java.net.HttpURLConnection
-import kotlin.math.*
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sqrt
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.URL
-import java.nio.Buffer
 import kotlin.math.*
 
 
