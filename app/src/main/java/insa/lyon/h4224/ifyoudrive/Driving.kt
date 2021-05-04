@@ -45,10 +45,9 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.*
 import java.net.HttpURLConnection
 import kotlin.math.*
 import java.net.URL
@@ -198,8 +197,18 @@ class Driving : AppCompatActivity() {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
+                                val maxSpeed = getSpeedLimit(latitude, longitude)
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
+                                //textField.text = "$maxSpeed km/h"
+                                if(meanSpeed.toInt() > maxSpeed)
+                                {
+                                    textField.setTextColor(Color.RED)
+                                }
+                                else
+                                {
+                                    textField.setTextColor(Color.BLACK)
+                                }
                             }
                         }
                         previousLat = latitude
@@ -369,5 +378,67 @@ class Driving : AppCompatActivity() {
             e.printStackTrace()
         }
         return response
+    }
+
+    fun getSpeedLimit (latitude : Double, longitude : Double) : Int
+    {
+        var maxSpeed = 1000
+        var maxSpeedObtained = false
+        doAsync {
+            val data: String = """
+            <query type="way">
+                <around radius="10" lat="${latitude}" lon="${longitude}" />
+                <has-kv k="maxspeed" />
+            </query>
+
+            <!-- added by auto repair -->
+            <union>
+                <item/>
+                <recurse type="down"/>
+            </union>
+            <!-- end of auto repair -->
+            <print/></osm-script>'
+            """
+            var response = ""
+            var speedNotFound = true
+
+            response = performPostCall("http://overpass-api.de/api/interpreter", data)
+
+            while (response == "") {
+                Thread.sleep(1)
+            }
+            val factory = XmlPullParserFactory.newInstance()
+            factory.isNamespaceAware = true
+            val xpp = factory.newPullParser()
+
+            xpp.setInput(StringReader(response))
+            var eventType = xpp.eventType
+            while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (xpp.name == "way") {
+                        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                            if (eventType == XmlPullParser.START_TAG) {
+                                if (xpp.name == "tag") {
+                                    if (xpp.getAttributeValue(0) == "maxspeed") {
+                                        maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
+                                        speedNotFound = false
+                                        maxSpeedObtained = true
+                                    }
+                                }
+                            }
+                            eventType = xpp.next()
+                        }
+                    }
+                }
+                if (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = xpp.next()
+                }
+            }
+        }
+        while(!maxSpeedObtained)
+        {
+            Thread.sleep(1)
+        }
+        return maxSpeed
     }
 }
