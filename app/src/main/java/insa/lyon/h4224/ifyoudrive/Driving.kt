@@ -77,7 +77,7 @@ class Driving : AppCompatActivity() {
     private lateinit var targetPos : GeoPoint
     private lateinit var txtAddress : EditText
     private lateinit var roadOverlay : Polyline
-    private  lateinit var btnFin : Button
+    private lateinit var btnFin : Button
     private lateinit var map : MapView
     private lateinit var layoutAddress : TextInputLayout
 
@@ -93,8 +93,8 @@ class Driving : AppCompatActivity() {
     var line: Array<String>? = csvReader.readNext()
     while (line != null) {
         // Do something with the data
-        val latitude : Double line[0]
-        val longitude : Double line[1]
+        val latitude : Double = line[0]
+        val longitude : Double = line[1]
 
         line = csvReader.readNext()
     }
