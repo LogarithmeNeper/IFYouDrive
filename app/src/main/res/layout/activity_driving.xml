@@ -7,6 +7,7 @@
     tools:context=".TitlePage">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutAddress"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
