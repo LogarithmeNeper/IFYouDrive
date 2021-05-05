@@ -99,6 +99,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var imgRoute: ImageView
     private var maxSpeed = 1000
     var tts: TextToSpeech? = null
+    private var mediaPlayer : MediaPlayer? = null
 
     /**
      * Function used when creating the window at the beginning.
@@ -107,13 +108,17 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Getting the shared preferences
         Configuration.getInstance().load(
             this, androidx.preference.PreferenceManager.getDefaultSharedPreferences(
                 this
             )
         )
+        mediaPlayer = MediaPlayer.create(this, R.raw.beep)
+        mediaPlayer?.setOnCompletionListener {
+            mediaPlayer?.pause()
+            mediaPlayer?.seekTo(0)
+        }
 
         // Use of template
         setContentView(R.layout.activity_driving)
@@ -256,6 +261,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)
+                                    mediaPlayer?.start()
                                 }
                                 else
                                 {
