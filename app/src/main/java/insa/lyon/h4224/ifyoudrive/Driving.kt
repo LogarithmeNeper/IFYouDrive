@@ -79,6 +79,12 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var previousLong: Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var previousIndV: Int = 0
+    private var previousIndH: Int = 0
+    private var indexV: Int = 0
+    private var indexH: Int = 0
+    private var previousDangerZoneState: Int = 0
+    private var dangerZoneState: Int = 0
     private var tabSpeed: MutableList<Double> = mutableListOf(0.0)
     private var previousTime: Long = 0L
     private var time: Long = 0L
@@ -129,9 +135,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 line ->
             var splittedline = line.split(",")
             //points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
-            var indexV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
-            var indexH : Int = ((5.028014 - splittedline[0].toDouble())/0.000642).toInt()  // Round down
-            accidents_grid[460*indexV+indexH] = true
+            var indV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
+            var indH : Int = ((5.028014 - splittedline[0].toDouble())/0.000642).toInt()  // Round down
+            accidents_grid[460*indV+indH] = true
         }
       
         //tts
@@ -264,9 +270,60 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 }
                             }
                         }
+
+                        // Check the position on the accidents grid
+                        indexV = ((45.832835 - latitude)/0.000452).toInt() // Round down
+                        indexH = ((5.028014 - longitude)/0.000642).toInt()  // Round down
+                        if (indexH > previousIndH) {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,3,accidents_grid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,8,accidents_grid)
+                            } else {
+                                dangerZoneState = testZone(indexV*460+indexH,5,accidents_grid)
+                            }
+                        } else if (indexH < previousIndH) {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,1,accidents_grid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,6,accidents_grid)
+                            } else {
+                                dangerZoneState = testZone(indexV*460+indexH,4,accidents_grid)
+                            }
+                        } else {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,2,accidents_grid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,7,accidents_grid)
+                            } else {
+                                dangerZoneState = previousDangerZoneState
+                            }
+                        }
+                        if (dangerZoneState == 0) {
+                            when(previousDangerZoneState) {
+                                2 -> {} //"Vous sortez d'une zone de danger"
+                                3 -> {} //"Vous sortez d'une zone de danger"
+                            }
+                        } else if (dangerZoneState == 1) {
+                            when(previousDangerZoneState) {
+                                0 -> {} //"Vous approchez d'une zone de danger"
+                                2 -> dangerZoneState = 3
+                            }
+                        } else {
+                            when (previousDangerZoneState) {
+                                0 -> {
+                                } //"Vous entrez dans une zone de danger"
+                                1 -> {
+                                } //"Vous entrez dans une zone de danger"
+                            }
+                        }
+
                         previousLat = latitude
                         previousLong = longitude
                         previousTime = time
+                        previousIndH = indexH
+                        previousIndV = indexV
+                        previousDangerZoneState = dangerZoneState
                     }
 
                     if (!freeCam) {
@@ -586,5 +643,44 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             Thread.sleep(1)
         }
         return maxSpeed
+    }
+
+    private fun testZone(index : Int,direction : Int,grid : BooleanArray) : Int {
+        var newState : Int = 0
+        if (grid[index]) {
+            newState = 2
+        } else {
+            var dangerNear : Boolean = false
+            when (direction) {
+                1 -> {
+                    dangerNear = grid[index-1] or grid[index+459] or grid[index-462] or grid[index-461] or grid[index-460] or grid[index-459] or grid[index-921] or grid[index-922]
+                }
+                2 -> {
+                    dangerNear = grid[index-1] or grid[index+1] or grid[index-461] or grid[index-460] or grid[index-459] or grid[index-920]
+                }
+                3 -> {
+                    dangerNear = grid[index+1] or grid[index-458] or grid[index-459] or grid[index-460] or grid[index-461] or grid[index+461] or grid[index-918] or grid[index-919]
+                }
+                4 -> {
+                    dangerNear = grid[index-1] or grid[index-2] or grid[index-461] or grid[index-460] or grid[index+459] or grid[index+460]
+                }
+                5 -> {
+                    dangerNear = grid[index+1] or grid[index+2] or grid[index+461] or grid[index+460] or grid[index-459] or grid[index-460]
+                }
+                6 -> {
+                    dangerNear = grid[index-1] or grid[index+458] or grid[index+459] or grid[index+460] or grid[index+461] or grid[index-461] or grid[index+918] or grid[index+919]
+                }
+                7 -> {
+                    dangerNear = grid[index+1] or grid[index-1] or grid[index+461] or grid[index+460] or grid[index+459] or grid[index+920]
+                }
+                8 -> {
+                    dangerNear = grid[index+1] or grid[index-459] or grid[index+462] or grid[index+461] or grid[index+460] or grid[index+459] or grid[index+921] or grid[index+922]
+                }
+            }
+            if (dangerNear) {
+                newState = 1
+            }
+        }
+        return newState
     }
 }
