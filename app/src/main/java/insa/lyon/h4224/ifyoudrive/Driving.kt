@@ -398,6 +398,8 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 if (GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation) > distanceNode + 30) {
                     computeRoute()
                     return
+                }  else if (GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation) < distanceNode) {
+                    distanceNode = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
                 }
             }
         }
