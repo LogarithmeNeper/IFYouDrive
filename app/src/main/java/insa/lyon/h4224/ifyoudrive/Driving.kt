@@ -327,7 +327,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             val rn = Calendar.getInstance()
             var tempsRestant  = 0.0
-            for (j in i..road.mNodes.size) {
+            for (j in i..(road.mNodes.size - 1)) {
                 tempsRestant += road.mNodes[j].mDuration
             }
             rn.add(Calendar.SECOND, tempsRestant.toInt())
