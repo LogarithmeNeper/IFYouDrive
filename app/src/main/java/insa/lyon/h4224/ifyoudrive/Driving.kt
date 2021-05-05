@@ -52,9 +52,9 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
 import java.net.HttpURLConnection
-import kotlin.math.*
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
+import kotlin.math.*
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -118,6 +118,17 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Use of template
         setContentView(R.layout.activity_driving)
 
+        val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
+        val reader = cin.bufferedReader()
+
+        // functional for each
+        var points : ArrayList<Pair<Double, Double>> = ArrayList()
+        reader.forEachLine {
+                line ->
+            var splittedline = line.split(",")
+            points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+        }
+      
         //tts
         tts = TextToSpeech(this, this)
 
@@ -204,8 +215,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             override fun onLocationResult(locationResult: LocationResult) {
                 val textField: TextView = findViewById(R.id.textSpeedDriving)
 
-                // Test getting speed limits
-                // End of test
                 // Checking if the location permission is granted, otherwise looping
                 while (ActivityCompat.checkSelfPermission(
                         this@Driving,
