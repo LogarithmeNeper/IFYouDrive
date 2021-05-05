@@ -120,10 +120,11 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
         val reader = cin.bufferedReader()
 
+        // functional for each
         var points : ArrayList<Pair<Double, Double>> = ArrayList()
         reader.forEachLine {
                 line ->
-            var splittedline = line.split(";")
+            var splittedline = line.split(",")
             points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
         }
       
