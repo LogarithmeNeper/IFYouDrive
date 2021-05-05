@@ -117,15 +117,21 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Use of template
         setContentView(R.layout.activity_driving)
 
+        // Creation of the grid for the danger zones
         val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
         val reader = cin.bufferedReader()
 
+        val accidents_grid : BooleanArray = BooleanArray(172040)
+
         // functional for each
-        var points : ArrayList<Pair<Double, Double>> = ArrayList()
+        // var points : ArrayList<Pair<Double, Double>> = ArrayList()
         reader.forEachLine {
                 line ->
             var splittedline = line.split(",")
-            points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+            //points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+            var indexV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
+            var indexH : Int = ((5.028014 - splittedline[0].toDouble())/0.000642).toInt()  // Round down
+            accidents_grid[460*indexV+indexH] = true
         }
       
         //tts
