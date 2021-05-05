@@ -128,7 +128,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 line ->
             var splittedline = line.split(";")
             points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
-            Log.d("=====================", line)
         }
       
         //tts
