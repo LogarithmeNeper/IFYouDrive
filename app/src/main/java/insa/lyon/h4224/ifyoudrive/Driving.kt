@@ -58,7 +58,6 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
-import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.*
@@ -98,6 +97,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var txtLength: TextView
     private lateinit var txtTime: TextView
     private lateinit var imgRoute: ImageView
+    private var maxSpeed = 1000
     var tts: TextToSpeech? = null
 
     /**
@@ -236,10 +236,10 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
-                                val maxSpeed = getSpeedLimit(latitude, longitude)
+                                //maxSpeed = getSpeedLimit(latitude, longitude)
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
-                                //textField.text = "$maxSpeed km/h"
+                                /*textField.text = "$maxSpeed km/h"
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)
@@ -247,7 +247,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 else
                                 {
                                     textField.setTextColor(Color.BLACK)
-                                }
+                                }*/
                             }
                         }
                         previousLat = latitude
@@ -567,10 +567,10 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
             }
         }
-        while(!maxSpeedObtained)
+        /*while(!maxSpeedObtained)
         {
             Thread.sleep(1)
-        }
+        }*/
         return maxSpeed
     }
 }
