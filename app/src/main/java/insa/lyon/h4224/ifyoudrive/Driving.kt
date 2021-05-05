@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.StrictMode
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -110,9 +111,10 @@ class Driving : AppCompatActivity() {
                 line ->
             var splittedline = line.split(";")
             points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+            Log.d("=====================", line)
         }
 
-        Toast.makeText(this@Driving, points[0].first.toString(), Toast.LENGTH_SHORT)
+
 
         // Getting the position.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
