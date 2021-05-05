@@ -4,7 +4,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AlcoholForm">
+    tools:context=".Driving">
+
+    <LinearLayout
+        android:id="@+id/layoutRouting"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imgRoute"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_empty" />
+
+        <TextView
+            android:id="@+id/txtLength"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/txtTime"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textColor="#000000"/>
+    </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutAddress"
@@ -16,11 +48,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/rechercher_une_adresse"
-            android:maxLines="1"
             android:lines="1"
-            android:singleLine="true"
-        />
+            android:maxLines="1"
+            android:singleLine="true" />
+
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <org.osmdroid.views.MapView
         android:id="@+id/mapview"
@@ -42,23 +75,23 @@
             android:text="Recentrer"
             android:visibility="invisible" />
 
-     <!-- 
-<ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="bottom"
-        android:layout_margin="10dp"
-        android:src="@drawable/speed_img"/>
--->
+        <!--
+   <ImageView
+           android:layout_width="100dp"
+           android:layout_height="100dp"
+           android:layout_gravity="bottom"
+           android:layout_margin="10dp"
+           android:src="@drawable/speed_img"/>
+   -->
 
         <TextView
             android:id="@+id/textSpeedDriving"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:text="0 km/h"
             android:textColor="#000000"
-            android:gravity="center"
             android:textSize="30sp" />
 
         <Button
