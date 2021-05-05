@@ -245,10 +245,14 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
-                                //maxSpeed = getSpeedLimit(latitude, longitude)
+                                doAsync {
+                                    maxSpeed = getSpeedLimit(latitude, longitude)
+                                }
+                                // We don't wait explicitely for the return of maxSpeed to arrive,
+                                // So we use the previous max speed while app is getting the new one
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
-                                /*textField.text = "$maxSpeed km/h"
+                                //textField.text = "$maxSpeed km/h"
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)
@@ -256,7 +260,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 else
                                 {
                                     textField.setTextColor(Color.BLACK)
-                                }*/
+                                }
                             }
                         }
                         previousLat = latitude
@@ -523,12 +527,10 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     fun getSpeedLimit (latitude : Double, longitude : Double) : Int
     {
-        var maxSpeed = 1000
-        var maxSpeedObtained = false
-        doAsync {
-            val data: String = """
+        var maxSpeed = 80 // Default max speed is 80km/h
+        val data: String = """
             <query type="way">
-                <around radius="10" lat="${latitude}" lon="${longitude}" />
+                <around radius="20" lat="${latitude}" lon="${longitude}" />
                 <has-kv k="maxspeed" />
             </query>
 
@@ -540,46 +542,40 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             <!-- end of auto repair -->
             <print/></osm-script>'
             """
-            var response = ""
-            var speedNotFound = true
+        var response = ""
+        var speedNotFound = true
 
-            response = performPostCall("http://overpass-api.de/api/interpreter", data)
+        response = performPostCall("http://overpass-api.de/api/interpreter", data)
 
-            while (response == "") {
-                Thread.sleep(1)
-            }
-            val factory = XmlPullParserFactory.newInstance()
-            factory.isNamespaceAware = true
-            val xpp = factory.newPullParser()
+        while (response == "") {
+            Thread.sleep(1)
+        }
+        val factory = XmlPullParserFactory.newInstance()
+        factory.isNamespaceAware = true
+        val xpp = factory.newPullParser()
 
-            xpp.setInput(StringReader(response))
-            var eventType = xpp.eventType
-            while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.name == "way") {
-                        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
-                            if (eventType == XmlPullParser.START_TAG) {
-                                if (xpp.name == "tag") {
-                                    if (xpp.getAttributeValue(0) == "maxspeed") {
-                                        maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
-                                        speedNotFound = false
-                                        maxSpeedObtained = true
-                                    }
+        xpp.setInput(StringReader(response))
+        var eventType = xpp.eventType
+        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG) {
+                if (xpp.name == "way") {
+                    while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                        if (eventType == XmlPullParser.START_TAG) {
+                            if (xpp.name == "tag") {
+                                if (xpp.getAttributeValue(0) == "maxspeed") {
+                                    maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
+                                    speedNotFound = false
                                 }
                             }
-                            eventType = xpp.next()
                         }
+                        eventType = xpp.next()
                     }
                 }
-                if (eventType != XmlPullParser.END_DOCUMENT) {
-                    eventType = xpp.next()
-                }
+            }
+            if (eventType != XmlPullParser.END_DOCUMENT) {
+                eventType = xpp.next()
             }
         }
-        /*while(!maxSpeedObtained)
-        {
-            Thread.sleep(1)
-        }*/
         return maxSpeed
     }
 }
