@@ -30,14 +30,16 @@
             </intent-filter>
 
         </activity>
-        <activity 
-            android:name=".EvaluateRisks" 
-            android:parentActivityName=".AlcoholForm"/>
+        <activity
+            android:name=".EvaluateReaction"
+            android:parentActivityName=".EvaluateRisks" />
+        <activity
+            android:name=".EvaluateRisks"
+            android:parentActivityName=".AlcoholForm" />
         <activity
             android:name=".AlcoholForm"
-            android:parentActivityName=".EvaluateReaction"
-            android:label="IFYouDrive">
-        </activity>
+            android:label="IFYouDrive"
+            android:parentActivityName=".EvaluateReaction"></activity>
     </application>
 
 </manifest>
