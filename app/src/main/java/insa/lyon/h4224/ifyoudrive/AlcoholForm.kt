@@ -19,7 +19,6 @@ class AlcoholForm : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // Use of template.
         setContentView(R.layout.activity_alcohol_form)
-        setSupportActionBar(findViewById(R.id.toolbar_form))
 
         // Obtain all the necessary elements in the layout.
         val mSexGroup: RadioGroup = findViewById(R.id.sex_group)
