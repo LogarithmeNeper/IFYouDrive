@@ -19,27 +19,23 @@
         android:theme="@style/Theme.IFYouDrive">
         <activity
             android:name=".EvaluateReaction"
-            android:parentActivityName=".EvaluateRisks" />
-        <activity
-            android:name=".Driving"
-            android:screenOrientation="portrait">
+            android:parentActivityName=".EvaluateRisks">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
-            android:name=".EvaluateReaction"
-            android:parentActivityName=".EvaluateRisks" />
+            android:name=".Driving"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".EvaluateRisks"
             android:parentActivityName=".AlcoholForm" />
         <activity
             android:name=".AlcoholForm"
             android:label="IFYouDrive"
-            android:parentActivityName=".EvaluateReaction"></activity>
+            android:parentActivityName=".EvaluateReaction" />
     </application>
 
 </manifest>
