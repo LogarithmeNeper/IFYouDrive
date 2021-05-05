@@ -55,12 +55,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.*
-import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
-import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.*
@@ -481,107 +478,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         } else {
             Log.e("TTS", "Initialization Failed!")
         }
-    }
-
-    fun performPostCall(
-        requestURL: String?,
-        data: String?
-    ): String {
-        val url: URL
-        var response: String = ""
-        try {
-            url = URL(requestURL)
-            val conn =
-                url.openConnection() as HttpURLConnection
-            conn.readTimeout = 15000
-            conn.connectTimeout = 15000
-            conn.requestMethod = "POST"
-            conn.doInput = true
-            conn.doOutput = true
-            val os = conn.outputStream
-            val writer = BufferedWriter(
-                OutputStreamWriter(os, "UTF-8")
-            )
-            writer.write(data)
-            writer.flush()
-            writer.close()
-            os.close()
-            val responseCode = conn.responseCode
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                var line: String?
-                val br = BufferedReader(InputStreamReader(conn.inputStream))
-                while (br.readLine().also { line = it } != null) {
-                    response += line
-                }
-            } else {
-                response = ""
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return response
-    }
-
-    fun getSpeedLimit (latitude : Double, longitude : Double) : Int
-    {
-        var maxSpeed = 1000
-        var maxSpeedObtained = false
-        doAsync {
-            val data: String = """
-            <query type="way">
-                <around radius="10" lat="${latitude}" lon="${longitude}" />
-                <has-kv k="maxspeed" />
-            </query>
-
-            <!-- added by auto repair -->
-            <union>
-                <item/>
-                <recurse type="down"/>
-            </union>
-            <!-- end of auto repair -->
-            <print/></osm-script>'
-            """
-            var response = ""
-            var speedNotFound = true
-
-            response = performPostCall("http://overpass-api.de/api/interpreter", data)
-
-            while (response == "") {
-                Thread.sleep(1)
-            }
-            val factory = XmlPullParserFactory.newInstance()
-            factory.isNamespaceAware = true
-            val xpp = factory.newPullParser()
-
-            xpp.setInput(StringReader(response))
-            var eventType = xpp.eventType
-            while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (xpp.name == "way") {
-                        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
-                            if (eventType == XmlPullParser.START_TAG) {
-                                if (xpp.name == "tag") {
-                                    if (xpp.getAttributeValue(0) == "maxspeed") {
-                                        maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
-                                        speedNotFound = false
-                                        maxSpeedObtained = true
-                                    }
-                                }
-                            }
-                            eventType = xpp.next()
-                        }
-                    }
-                }
-                if (eventType != XmlPullParser.END_DOCUMENT) {
-                    eventType = xpp.next()
-                }
-            }
-        }
-        while(!maxSpeedObtained)
-        {
-            Thread.sleep(1)
-        }
-        return maxSpeed
     }
 
     fun performPostCall(
