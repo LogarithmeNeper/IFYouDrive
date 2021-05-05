@@ -32,6 +32,7 @@ class EvaluateReaction : AppCompatActivity() {
         val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
         val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
         val driveButton : Button = findViewById(R.id.drive_button)
+        val indicButton : Button = findViewById(R.id.indication_button)
         val title: TextView = findViewById(R.id.title)
 
         var startingTime : Long = System.currentTimeMillis()
@@ -60,17 +61,20 @@ class EvaluateReaction : AppCompatActivity() {
                 if(delta <= 500)
                 {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un bon temps de réponse. \n" +
-                            "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                            "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le fonctionnement de la navigation " +
+                            "en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
                 else if(delta in 501..800)
                 {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un temps de réponse un peu lent, il pourrait être plus judicieux " +
-                            "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                            "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le " +
+                            "fonctionnement de la navigation en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
                 else
                 {
                     textEvaluate.text = "Votre temps de réponse est de ${delta} ms. C'est un temps de réponse lent, il vous est fortement déconseillé de prendre le volant." +
-                            "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test ou lancer la navigation en appuyant sur le bouton Drive Me."
+                            "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le fonctionnement de la navigation " +
+                            "en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
                 }
 
                 // Setting everything visible
@@ -81,6 +85,7 @@ class EvaluateReaction : AppCompatActivity() {
                 driveButton.visibility = View.VISIBLE
                 mStartButton.text = "Nouveau test"
                 mStartButton.visibility = View.VISIBLE
+                indicButton.visibility = View.VISIBLE
             }
             true
         }
@@ -88,6 +93,12 @@ class EvaluateReaction : AppCompatActivity() {
             // Intent in order to go to the driving activity
             val intentToDrive = Intent(this@EvaluateReaction, Driving::class.java)
             startActivity(intentToDrive)
+        }
+
+        indicButton.setOnClickListener {
+            // Intent in order to go the the indications activity
+            val intentToIndications = Intent(this@EvaluateReaction, Indications::class.java)
+            startActivity(intentToIndications)
         }
     }
 }

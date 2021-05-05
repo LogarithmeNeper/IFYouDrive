@@ -35,10 +35,19 @@
         android:text="Commencer"/>
 
     <Button
+        android:id="@+id/indication_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_gravity="center_horizontal"
+        android:text="indications"/>
+
+    <Button
         android:id="@+id/drive_button"
         android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Drive me !"/>
+
 </LinearLayout>

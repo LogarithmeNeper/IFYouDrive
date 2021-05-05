@@ -21,6 +21,9 @@
             android:name=".EvaluateReaction"
             android:parentActivityName=".EvaluateRisks"/>
         <activity
+            android:name=".Indications"
+            android:parentActivityName=".EvaluateReaction"/>
+        <activity
             android:name=".TitlePage"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
             <intent-filter>
