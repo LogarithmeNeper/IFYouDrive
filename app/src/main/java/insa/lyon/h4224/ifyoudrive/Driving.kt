@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
-import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.*
 import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
@@ -27,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textfield.TextInputLayout.END_ICON_CLEAR_TEXT
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -145,6 +144,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         imgRoute = findViewById(R.id.imgRoute)
 
 
+        layoutAddress.endIconMode = END_ICON_CLEAR_TEXT
         // Using the Tilesourcefactory of OSM.
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.addMapListener(DelayedMapListener(object : MapListener {
@@ -349,11 +349,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
      * update informations when reaching a node
      */
     private fun handleRoute(road: Road) {
-        var timeup = false
-        var reload = false
         for (i in road.mNodes.indices) {
-            if (btnFin.visibility != View.VISIBLE || reload)
-                break
+            if (btnFin.visibility != View.VISIBLE)
+                return
             when (road.mNodes[i].mManeuverType) {
                 1 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
                 6 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_right))
@@ -367,8 +365,8 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             val rn = Calendar.getInstance()
             var tempsRestant  = 0.0
-            for (j in i..road.mNodes.size) {
-                tempsRestant += road.mNodes[i].mDuration
+            for (j in i..(road.mNodes.size - 1)) {
+                tempsRestant += road.mNodes[j].mDuration
             }
             rn.add(Calendar.SECOND, tempsRestant.toInt())
             txtTime.text = java.lang.String.format(
@@ -381,7 +379,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             )
             synthese(road.mNodes[i].mInstructions)
             var distanceNode = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
-            while (btnFin.visibility == View.VISIBLE && road.mNodes[i].mLocation.distanceToAsDouble(GeoPoint(latitude,longitude)) > 20.0) {
+            while (btnFin.visibility == View.VISIBLE && road.mNodes[i].mLocation.distanceToAsDouble(GeoPoint(latitude,longitude)) > 10.0) {
                 val distance = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
                 if (distance > 1000)
                     txtLength.text = (distance / 1000).toInt().toString() + "km"
@@ -389,8 +387,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                     txtLength.text = distance.toInt().toString() + "m"
                 if (GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation) > distanceNode + 30) {
                     computeRoute()
-                    reload = true
-                    break
+                    return
                 }
             }
         }
@@ -409,12 +406,11 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
      */
     fun routeDone() {
         btnFin.visibility = View.INVISIBLE
+        txtAddress.text.clear()
         layoutAddress.visibility = View.VISIBLE
         layoutRouting.visibility = View.GONE
-
         map.overlays.remove(roadOverlay)
         map.invalidate()
-        txtAddress.text.clear()
     }
 
     /**
