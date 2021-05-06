@@ -17,22 +17,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
         <activity
-            android:name=".Driving"
-            android:screenOrientation="portrait">
+            android:name=".TitlePage"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
-            android:name=".EvaluateRisks"
-            android:parentActivityName=".AlcoholForm" />
-        <activity
             android:name=".AlcoholForm"
-            android:label="IFYouDrive"
-            android:parentActivityName=".EvaluateReaction"></activity>
+            android:parentActivityName=".TitlePage"/>
+        <activity
+            android:name=".EvaluateRisks"
+            android:parentActivityName=".AlcoholForm"/>
+        <activity
+            android:name=".EvaluateReaction"
+            android:parentActivityName=".EvaluateRisks"/>
+        <activity
+            android:name=".Indications"
+            android:parentActivityName=".EvaluateRisks"/>
+        <activity
+            android:name=".Driving"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".EvaluateReaction"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
     </application>
 
 </manifest>
