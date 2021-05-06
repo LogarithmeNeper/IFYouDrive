@@ -18,9 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IFYouDrive">
         <activity
-            android:name=".EvaluateReaction"
-            android:parentActivityName=".EvaluateRisks" />
-        <activity
             android:name=".Driving"
             android:screenOrientation="portrait">
             <intent-filter>
