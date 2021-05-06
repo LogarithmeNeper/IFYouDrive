@@ -274,8 +274,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 ++requestCompteur
                                 // We don't wait explicitely for the return of maxSpeed to arrive,
                                 // So we use the previous max speed while app is getting the new one
-                                textField.text =
-                                    "${meanSpeed.toInt()} km/h"
+                                textField.text = "${meanSpeed.toInt()} km/h"
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)
@@ -632,10 +631,11 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             <print/></osm-script>'
             """
         var speedNotFound = true
+        //var response = "null"
         var response = performPostCall("https://overpass-api.de/api/interpreter", data)
         /*
-        while (response == "") {
-            Thread.sleep(1)
+        while (response == "null") {
+            Thread.sleep(100)
         }
         */
         val factory = XmlPullParserFactory.newInstance()
