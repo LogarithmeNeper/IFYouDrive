@@ -2,7 +2,7 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.app.Activity
-import android.app.VoiceInteractor
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -13,13 +13,9 @@ import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.view.textclassifier.TextLinks
-import android.view.textclassifier.TextSelection
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +27,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
@@ -45,20 +42,16 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
+import org.osmdroid.views.overlay.compass.IOrientationProvider
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
-import java.net.HttpURLConnection
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
-import kotlin.math.*
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sqrt
 import java.util.*
+import javax.net.ssl.HttpsURLConnection
 import kotlin.collections.ArrayList
 import kotlin.math.*
 
@@ -88,7 +81,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var tabSpeed: MutableList<Double> = mutableListOf(0.0)
     private var previousTime: Long = 0L
     private var time: Long = 0L
-    private lateinit var mLocationOverlay: MyLocationNewOverlay
+    lateinit var mLocationOverlay: MyLocationNewOverlay
     private lateinit var btnCentre: Button
     private var freeCam = false
     private lateinit var route: String
@@ -107,6 +100,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     var tts: TextToSpeech? = null
     private var mediaPlayer : MediaPlayer? = null
     private var requestCompteur = 0
+    var bike = false
 
     /**
      * Function used when creating the window at the beginning.
@@ -209,7 +203,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         map.overlays.add(mRotationGestureOverlay)
 
         // Added a compass at the top-left of the screen
-        val compassOverlay = CompassOverlay(this, map)
+        val compassOverlay = MyCompassOverlay(this, map)
         compassOverlay.enableCompass()
         map.overlays.add(compassOverlay)
 
@@ -405,6 +399,8 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
                 waypoints.add(GeoPoint(latitude, longitude))
                 waypoints.add(targetPos)
+                if (bike)
+                    roadManager.addRequestOption("vehicle=bike")
                 val road = roadManager.getRoad(waypoints)
                 if (this@Driving::roadOverlay.isInitialized) {
                     map.overlays.remove(roadOverlay)
@@ -633,11 +629,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         var speedNotFound = true
         //var response = "null"
         var response = performPostCall("https://overpass-api.de/api/interpreter", data)
-        /*
-        while (response == "null") {
-            Thread.sleep(100)
-        }
-        */
         val factory = XmlPullParserFactory.newInstance()
         factory.isNamespaceAware = true
         val xpp = factory.newPullParser()
@@ -720,4 +711,42 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         return 0
     }
+}
+
+class MyCompassOverlay : CompassOverlay {
+    lateinit var driving: Driving
+
+    constructor(context: Context?, mapView: MapView) : super(context, mapView) {
+        this.driving = context as Driving
+    }
+
+    constructor(context: Context?, iOrientationProvider: IOrientationProvider, mapView: MapView) : super(
+        context,
+        iOrientationProvider,
+        mapView
+    )
+
+    override fun onSingleTapConfirmed(e: MotionEvent?, mapView: MapView?): Boolean {
+        mapView?.mapOrientation = 0f
+        if (driving.bike) {
+            this.driving.mLocationOverlay.setPersonIcon(
+                BitmapFactory.decodeResource(
+                    driving.resources,
+                    R.drawable.marker_car_on
+                )
+            )
+            driving.bike = false
+        }
+        else {
+            this.driving.mLocationOverlay.setPersonIcon(
+                BitmapFactory.decodeResource(
+                    driving.resources,
+                    R.drawable.bike
+                )
+            )
+            driving.bike = true
+        }
+        return super.onSingleTapConfirmed(e, mapView)
+    }
+
 }
