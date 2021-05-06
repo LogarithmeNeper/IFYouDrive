@@ -407,7 +407,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     /**
-     * update informations when reaching a node
+     * Update informations when reaching a node
      */
     private fun handleRoute(road: Road) {
         var timeup = false
@@ -416,6 +416,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (btnFin.visibility != View.VISIBLE || reload)
                 break
             when (road.mNodes[i].mManeuverType) {
+                // Specific images
                 1 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
                 6 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_right))
                 7 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_right))
@@ -488,7 +489,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     /**
      * Function to speak route instructions
      */
-
     private  fun synthese(voice:String) {
         tts!!.speak(voice,TextToSpeech.QUEUE_FLUSH, null)
     }
@@ -532,6 +532,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         return R * c
     }
 
+    /**
+     * On initialization for Text To Speech
+     */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.FRANCE)
@@ -543,6 +546,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    /**
+     * Performing a POST call using a request URL and the data wanted.
+     */
     fun performPostCall(
         requestURL: String?,
         data: String?
@@ -582,6 +588,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         return response
     }
 
+    /**
+     * Getting speed limit of the current tile, using a query on OSM.
+     */
     fun getSpeedLimit (latitude : Double, longitude : Double) : Int
     {
         var maxSpeed = 1000
@@ -644,6 +653,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         return maxSpeed
     }
 
+    /**
+     * Testing the dangerosity of the current tile.
+     */
     private fun testZone(index : Int,direction : Int,grid : BooleanArray) : Int {
         if ((index >= 172040) or (index < 0)) { //Out of our grid
             return 0
