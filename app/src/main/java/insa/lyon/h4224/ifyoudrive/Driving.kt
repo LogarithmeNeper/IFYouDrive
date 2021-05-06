@@ -646,41 +646,52 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun testZone(index : Int,direction : Int,grid : BooleanArray) : Int {
-        var newState : Int = 0
+        if ((index >= 172040) or (index < 0)) { //Out of our grid
+            return 0
+        }
         if (grid[index]) {
-            newState = 2
+            return 2
         } else {
             var dangerNear : Boolean = false
+            //Booleans to check if the position is on the border of the grid to avoid out of range indexes
+            var borderUp : Boolean = index < 460
+            var borderDown : Boolean = index > 171579
+            var borderLeft : Boolean = index % 460 == 0
+            var borderRight : Boolean = index % 460 == 459
+            var almostBorderUp : Boolean = (index < 920) and (index >= 460)
+            var almostBorderDown : Boolean = (index > 171119) and (index <= 172580)
+            var almostBorderLeft : Boolean = index % 460 == 1
+            var almostBorderRight : Boolean = index % 460 == 458
             when (direction) {
                 1 -> {
-                    dangerNear = grid[index-1] or grid[index+459] or grid[index-462] or grid[index-461] or grid[index-460] or grid[index-459] or grid[index-921] or grid[index-922]
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !borderDown and grid[index+459]) or (!borderUp and !almostBorderLeft and grid[index-462]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderUp and !borderRight and grid[index-459]) or (!borderUp and !almostBorderUp and !borderLeft and grid[index-921]) or (!borderLeft and !almostBorderLeft and !borderUp and !almostBorderUp and grid[index-922])
                 }
                 2 -> {
-                    dangerNear = grid[index-1] or grid[index+1] or grid[index-461] or grid[index-460] or grid[index-459] or grid[index-920]
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderRight and grid[index+1]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderRight and !borderUp and grid[index-459]) or (!almostBorderUp and !borderUp and grid[index-920])
                 }
                 3 -> {
-                    dangerNear = grid[index+1] or grid[index-458] or grid[index-459] or grid[index-460] or grid[index-461] or grid[index+461] or grid[index-918] or grid[index-919]
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and !borderUp and grid[index-458]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderDown and !borderRight and grid[index+461]) or (!borderRight and !borderUp and !almostBorderRight and !almostBorderUp and grid[index-918]) or (!borderUp and !almostBorderUp and !borderRight and grid[index-919])
                 }
                 4 -> {
-                    dangerNear = grid[index-1] or grid[index-2] or grid[index-461] or grid[index-460] or grid[index+459] or grid[index+460]
+                    dangerNear = (!borderRight and grid[index-1]) or (!borderRight and almostBorderRight and grid[index-2]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460])
                 }
                 5 -> {
-                    dangerNear = grid[index+1] or grid[index+2] or grid[index+461] or grid[index+460] or grid[index-459] or grid[index-460]
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and grid[index+2]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460])
                 }
                 6 -> {
-                    dangerNear = grid[index-1] or grid[index+458] or grid[index+459] or grid[index+460] or grid[index+461] or grid[index-461] or grid[index+918] or grid[index+919]
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !almostBorderLeft and !borderDown and grid[index+458]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460]) or (!borderDown and !borderRight and grid[index+461]) or (!borderUp and !borderLeft and grid[index-461]) or (!borderDown and !almostBorderDown and !borderLeft and !almostBorderLeft and grid[index+918]) or (!borderLeft and !borderDown and !almostBorderDown and grid[index+919])
                 }
                 7 -> {
-                    dangerNear = grid[index+1] or grid[index-1] or grid[index+461] or grid[index+460] or grid[index+459] or grid[index+920]
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderLeft and grid[index-1]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and !almostBorderDown and grid[index+920])
                 }
                 8 -> {
-                    dangerNear = grid[index+1] or grid[index-459] or grid[index+462] or grid[index+461] or grid[index+460] or grid[index+459] or grid[index+921] or grid[index+922]
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !borderUp and grid[index-459]) or (!borderRight and !almostBorderRight and !borderDown and grid[index+462]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderRight and !borderDown and !almostBorderDown and grid[index+921]) or (!borderDown and !almostBorderDown and !borderRight and !almostBorderRight and grid[index+922])
                 }
             }
             if (dangerNear) {
-                newState = 1
+                return 1
             }
         }
-        return newState
+        return 0
     }
 }
