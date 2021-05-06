@@ -29,6 +29,7 @@ class EvaluateRisks : AppCompatActivity() {
         val skipToDrive: Button = findViewById(R.id.skip_drive_button)
         val infoAlcohol: Button = findViewById(R.id.alcohol_info)
         val infoDrugs: Button = findViewById(R.id.drugs_info)
+        val indicButton : Button = findViewById(R.id.skip_indic_button)
 
         // Getting the information from the intent (data from previous activity)
         val estimation: Double = intent.getDoubleExtra("Estimation", 0.0)
@@ -81,6 +82,12 @@ class EvaluateRisks : AppCompatActivity() {
             val uri: Uri = Uri.parse("https://www.securite-routiere.gouv.fr/dangers-de-la-route/la-drogue-et-la-conduite")
             val intent = Intent(Intent.ACTION_VIEW, uri)
             startActivity(intent)
+        }
+
+        indicButton.setOnClickListener {
+            // Intent in order to go the the indications activity
+            val intentToIndications = Intent(this@EvaluateRisks, Indications::class.java)
+            startActivity(intentToIndications)
         }
 
     }
