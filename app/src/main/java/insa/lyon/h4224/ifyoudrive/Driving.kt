@@ -318,16 +318,19 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             when(previousDangerZoneState) {
                                 2 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                                 3 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                else -> {}
                             }
                         } else if (dangerZoneState == 1) {
                             when(previousDangerZoneState) {
                                 0 -> { tts!!.speak("Vous approchez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                                 2 -> dangerZoneState = 3
+                                else -> {}
                             }
                         } else {
                             when (previousDangerZoneState) {
                                 0 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                                 1 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                else -> {}
                             }
                         }
 
@@ -703,6 +706,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 8 -> { // Diagonal Down Right
                     dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !borderUp and grid[index-459]) or (!borderRight and !almostBorderRight and !borderDown and grid[index+462]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderRight and !borderDown and !almostBorderDown and grid[index+921]) or (!borderDown and !almostBorderDown and !borderRight and !almostBorderRight and grid[index+922])
                 }
+                else -> {dangerNear = false}
             }
             if (dangerNear) {
                 return 1
