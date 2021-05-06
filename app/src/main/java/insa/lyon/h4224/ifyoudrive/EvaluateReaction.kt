@@ -43,6 +43,7 @@ class EvaluateReaction : AppCompatActivity() {
             // Everything invisible
             driveButton.visibility = View.INVISIBLE
             mStartButton.visibility = View.INVISIBLE
+            indicButton.visibility = View.INVISIBLE
             var randomTime = Random.nextInt(2000,8000)
             Thread.sleep(randomTime.toLong())
             // Setting the background color to red.
