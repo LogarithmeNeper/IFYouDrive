@@ -181,10 +181,11 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                 return true
             }
         }, 100))
+        //Limits for the zoom on the map
         map.minZoomLevel =
-            5.0 //Limite la possibilité de dézoomer à une échelle qui dépasse la taille du planisphère
+            5.0
         map.maxZoomLevel =
-            20.0 //Limite la possibilité de zoomer au point de ne plus pouvoir lire la carte
+            20.0
         map.isVerticalMapRepetitionEnabled = false
         map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0)
         val mapController = map.controller
@@ -286,6 +287,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                         // Check the position on the accidents grid
                         indexV = ((45.832835 - latitude)/0.000452).toInt() // Round down
                         indexH = ((5.028014 - longitude)/0.000642).toInt()  // Round down
+                        // Chevk the change of the state of danger
                         if (indexH > previousIndH) {
                             if (indexV < previousIndV) {
                                 dangerZoneState = testZone(indexV*460+indexH,3,accidentsGrid)
@@ -311,6 +313,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 dangerZoneState = previousDangerZoneState
                             }
                         }
+                        // Trigger a vocal alert if the user is approaching, entering or leaving a dangerous zone
                         if (dangerZoneState == 0) {
                             when(previousDangerZoneState) {
                                 2 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
@@ -328,6 +331,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                         }
 
+                        // Updates of the current data
                         previousLat = latitude
                         previousLong = longitude
                         previousTime = time
@@ -661,9 +665,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         if ((index >= 172040) or (index < 0)) { //Out of our grid
             return 0
         }
-        if (grid[index]) {
+        if (grid[index]) { // The position is a dangerous zone
             return 2
-        } else {
+        } else { // Check if there are dangerous zones near the position
             var dangerNear : Boolean = false
             //Booleans to check if the position is on the border of the grid to avoid out of range indexes
             var borderUp : Boolean = index < 460
@@ -674,29 +678,29 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             var almostBorderDown : Boolean = (index > 171119) and (index <= 172580)
             var almostBorderLeft : Boolean = index % 460 == 1
             var almostBorderRight : Boolean = index % 460 == 458
-            when (direction) {
-                1 -> {
+            when (direction) { // Check specific cases depending on the direction of travel
+                1 -> { // Diagonal Top Left
                     dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !borderDown and grid[index+459]) or (!borderUp and !almostBorderLeft and grid[index-462]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderUp and !borderRight and grid[index-459]) or (!borderUp and !almostBorderUp and !borderLeft and grid[index-921]) or (!borderLeft and !almostBorderLeft and !borderUp and !almostBorderUp and grid[index-922])
                 }
-                2 -> {
+                2 -> { // Straight Top
                     dangerNear = (!borderLeft and grid[index-1]) or (!borderRight and grid[index+1]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderRight and !borderUp and grid[index-459]) or (!almostBorderUp and !borderUp and grid[index-920])
                 }
-                3 -> {
+                3 -> { // Diagonal Top Right
                     dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and !borderUp and grid[index-458]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderDown and !borderRight and grid[index+461]) or (!borderRight and !borderUp and !almostBorderRight and !almostBorderUp and grid[index-918]) or (!borderUp and !almostBorderUp and !borderRight and grid[index-919])
                 }
-                4 -> {
+                4 -> { // Straight Left
                     dangerNear = (!borderRight and grid[index-1]) or (!borderRight and almostBorderRight and grid[index-2]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460])
                 }
-                5 -> {
+                5 -> { // Straight Right
                     dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and grid[index+2]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460])
                 }
-                6 -> {
+                6 -> { // Diagonal Down Left
                     dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !almostBorderLeft and !borderDown and grid[index+458]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460]) or (!borderDown and !borderRight and grid[index+461]) or (!borderUp and !borderLeft and grid[index-461]) or (!borderDown and !almostBorderDown and !borderLeft and !almostBorderLeft and grid[index+918]) or (!borderLeft and !borderDown and !almostBorderDown and grid[index+919])
                 }
-                7 -> {
+                7 -> { // Straight Down
                     dangerNear = (!borderRight and grid[index+1]) or (!borderLeft and grid[index-1]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and !almostBorderDown and grid[index+920])
                 }
-                8 -> {
+                8 -> { // Diagonal Down Right
                     dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !borderUp and grid[index-459]) or (!borderRight and !almostBorderRight and !borderDown and grid[index+462]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderRight and !borderDown and !almostBorderDown and grid[index+921]) or (!borderDown and !almostBorderDown and !borderRight and !almostBorderRight and grid[index+922])
                 }
             }
