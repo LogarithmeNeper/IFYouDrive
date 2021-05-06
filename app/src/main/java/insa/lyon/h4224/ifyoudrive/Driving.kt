@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
+import android.media.MediaPlayer
 import android.os.*
 import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
