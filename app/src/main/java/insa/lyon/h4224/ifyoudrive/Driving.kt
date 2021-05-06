@@ -79,6 +79,12 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var previousLong: Double = 0.0
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var previousIndV: Int = 0
+    private var previousIndH: Int = 0
+    private var indexV: Int = 0
+    private var indexH: Int = 0
+    private var previousDangerZoneState: Int = 0
+    private var dangerZoneState: Int = 0
     private var tabSpeed: MutableList<Double> = mutableListOf(0.0)
     private var previousTime: Long = 0L
     private var time: Long = 0L
@@ -123,15 +129,22 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Use of template
         setContentView(R.layout.activity_driving)
 
+        // Creation of the grid for the danger zones
         val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
         val reader = cin.bufferedReader()
 
+        val accidentsGrid : BooleanArray = BooleanArray(172040)
+
         // functional for each
-        var points : ArrayList<Pair<Double, Double>> = ArrayList()
         reader.forEachLine {
                 line ->
             var splittedline = line.split(",")
-            points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+            var indV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
+            var indH : Int = ((5.028014 - splittedline[1].toDouble())/0.000642).toInt()  // Round down
+            var ind : Int = 460*indV+indH
+            if ((ind >= 0) and (ind < 172040)) {
+                accidentsGrid[ind] = true
+            }
         }
       
         //tts
@@ -258,7 +271,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 // So we use the previous max speed while app is getting the new one
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
-                                //textField.text = "$maxSpeed km/h"
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)
@@ -270,9 +282,58 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 }
                             }
                         }
+
+                        // Check the position on the accidents grid
+                        indexV = ((45.832835 - latitude)/0.000452).toInt() // Round down
+                        indexH = ((5.028014 - longitude)/0.000642).toInt()  // Round down
+                        if (indexH > previousIndH) {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,3,accidentsGrid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,8,accidentsGrid)
+                            } else {
+                                dangerZoneState = testZone(indexV*460+indexH,5,accidentsGrid)
+                            }
+                        } else if (indexH < previousIndH) {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,1,accidentsGrid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,6,accidentsGrid)
+                            } else {
+                                dangerZoneState = testZone(indexV*460+indexH,4,accidentsGrid)
+                            }
+                        } else {
+                            if (indexV < previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,2,accidentsGrid)
+                            } else if (indexV > previousIndV) {
+                                dangerZoneState = testZone(indexV*460+indexH,7,accidentsGrid)
+                            } else {
+                                dangerZoneState = previousDangerZoneState
+                            }
+                        }
+                        if (dangerZoneState == 0) {
+                            when(previousDangerZoneState) {
+                                2 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                3 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                            }
+                        } else if (dangerZoneState == 1) {
+                            when(previousDangerZoneState) {
+                                0 -> { tts!!.speak("Vous approchez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                2 -> dangerZoneState = 3
+                            }
+                        } else {
+                            when (previousDangerZoneState) {
+                                0 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                1 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                            }
+                        }
+
                         previousLat = latitude
                         previousLong = longitude
                         previousTime = time
+                        previousIndH = indexH
+                        previousIndV = indexV
+                        previousDangerZoneState = dangerZoneState
                     }
 
                     if (!freeCam) {
@@ -357,13 +418,14 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     /**
-     * update informations when reaching a node
+     * Update informations when reaching a node
      */
     private fun handleRoute(road: Road) {
         for (i in road.mNodes.indices) {
             if (btnFin.visibility != View.VISIBLE)
                 return
             when (road.mNodes[i].mManeuverType) {
+                // Specific images
                 1 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
                 6 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_right))
                 7 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_right))
@@ -436,7 +498,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     /**
      * Function to speak route instructions
      */
-
     private  fun synthese(voice:String) {
         tts!!.speak(voice,TextToSpeech.QUEUE_FLUSH, null)
     }
@@ -480,6 +541,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         return R * c
     }
 
+    /**
+     * On initialization for Text To Speech
+     */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.FRANCE)
@@ -491,6 +555,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    /**
+     * Performing a POST call using a request URL and the data wanted.
+     */
     fun performPostCall(
         requestURL: String?,
         data: String?
@@ -530,6 +597,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         return response
     }
 
+    /**
+     * Getting speed limit of the current tile, using a query on OSM.
+     */
     fun getSpeedLimit (latitude : Double, longitude : Double) : Int
     {
         var maxSpeed = 80 // Default max speed is 80km/h
@@ -582,5 +652,58 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
         return maxSpeed
+    }
+
+    /**
+     * Testing the dangerosity of the current tile.
+     */
+    private fun testZone(index : Int,direction : Int,grid : BooleanArray) : Int {
+        if ((index >= 172040) or (index < 0)) { //Out of our grid
+            return 0
+        }
+        if (grid[index]) {
+            return 2
+        } else {
+            var dangerNear : Boolean = false
+            //Booleans to check if the position is on the border of the grid to avoid out of range indexes
+            var borderUp : Boolean = index < 460
+            var borderDown : Boolean = index > 171579
+            var borderLeft : Boolean = index % 460 == 0
+            var borderRight : Boolean = index % 460 == 459
+            var almostBorderUp : Boolean = (index < 920) and (index >= 460)
+            var almostBorderDown : Boolean = (index > 171119) and (index <= 172580)
+            var almostBorderLeft : Boolean = index % 460 == 1
+            var almostBorderRight : Boolean = index % 460 == 458
+            when (direction) {
+                1 -> {
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !borderDown and grid[index+459]) or (!borderUp and !almostBorderLeft and grid[index-462]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderUp and !borderRight and grid[index-459]) or (!borderUp and !almostBorderUp and !borderLeft and grid[index-921]) or (!borderLeft and !almostBorderLeft and !borderUp and !almostBorderUp and grid[index-922])
+                }
+                2 -> {
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderRight and grid[index+1]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderRight and !borderUp and grid[index-459]) or (!almostBorderUp and !borderUp and grid[index-920])
+                }
+                3 -> {
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and !borderUp and grid[index-458]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderDown and !borderRight and grid[index+461]) or (!borderRight and !borderUp and !almostBorderRight and !almostBorderUp and grid[index-918]) or (!borderUp and !almostBorderUp and !borderRight and grid[index-919])
+                }
+                4 -> {
+                    dangerNear = (!borderRight and grid[index-1]) or (!borderRight and almostBorderRight and grid[index-2]) or (!borderLeft and !borderUp and grid[index-461]) or (!borderUp and grid[index-460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460])
+                }
+                5 -> {
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !almostBorderRight and grid[index+2]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderRight and !borderUp and grid[index-459]) or (!borderUp and grid[index-460])
+                }
+                6 -> {
+                    dangerNear = (!borderLeft and grid[index-1]) or (!borderLeft and !almostBorderLeft and !borderDown and grid[index+458]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and grid[index+460]) or (!borderDown and !borderRight and grid[index+461]) or (!borderUp and !borderLeft and grid[index-461]) or (!borderDown and !almostBorderDown and !borderLeft and !almostBorderLeft and grid[index+918]) or (!borderLeft and !borderDown and !almostBorderDown and grid[index+919])
+                }
+                7 -> {
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderLeft and grid[index-1]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderDown and !almostBorderDown and grid[index+920])
+                }
+                8 -> {
+                    dangerNear = (!borderRight and grid[index+1]) or (!borderRight and !borderUp and grid[index-459]) or (!borderRight and !almostBorderRight and !borderDown and grid[index+462]) or (!borderDown and !borderRight and grid[index+461]) or (!borderDown and grid[index+460]) or (!borderDown and !borderLeft and grid[index+459]) or (!borderRight and !borderDown and !almostBorderDown and grid[index+921]) or (!borderDown and !almostBorderDown and !borderRight and !almostBorderRight and grid[index+922])
+                }
+            }
+            if (dangerNear) {
+                return 1
+            }
+        }
+        return 0
     }
 }
