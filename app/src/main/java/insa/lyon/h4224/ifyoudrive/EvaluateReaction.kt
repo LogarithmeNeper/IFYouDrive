@@ -11,6 +11,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.*
+import org.w3c.dom.Text
 import kotlin.random.Random
 
 /**
@@ -21,6 +23,10 @@ class EvaluateReaction : AppCompatActivity() {
      * Function used when creating the window at the beginning.
      * Uses the template of the activity as it is defined in ~/res/layout/activity_evaluate_reaction
      */
+
+    var startingTime : Long = System.currentTimeMillis()
+    var testStarted : Boolean = false
+    var inWaitingTime : Boolean = false
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,27 +41,17 @@ class EvaluateReaction : AppCompatActivity() {
         val indicButton : Button = findViewById(R.id.indication_button)
         val title: TextView = findViewById(R.id.title)
 
-        var startingTime : Long = System.currentTimeMillis()
-        var testStarted : Boolean = false
-
         // Listener for starting the activity
         mStartButton.setOnClickListener {
-            // Everything invisible
-            driveButton.visibility = View.INVISIBLE
-            mStartButton.visibility = View.INVISIBLE
-            indicButton.visibility = View.INVISIBLE
-            var randomTime = Random.nextInt(2000,8000)
-            Thread.sleep(randomTime.toLong())
-            // Setting the background color to red.
-            layoutReaction.setBackgroundColor(Color.RED)
-            textEvaluate.visibility = View.INVISIBLE
-            title.visibility = View.INVISIBLE
-            testStarted = true
-            startingTime = System.currentTimeMillis()
+            if(!testStarted && !inWaitingTime)
+            {
+                GlobalScope.launch(Dispatchers.Main) { makeReactivityTest() }
+
+            }
 
         }
         layoutReaction.setOnTouchListener { v: View, m: MotionEvent ->
-            if (testStarted) {
+            if (testStarted && !inWaitingTime) {
                 var endingTime: Long = System.currentTimeMillis()
                 var delta = endingTime-startingTime
                 // Response according to the delta
@@ -91,15 +87,47 @@ class EvaluateReaction : AppCompatActivity() {
             true
         }
         driveButton.setOnClickListener {
-            // Intent in order to go to the driving activity
-            val intentToDrive = Intent(this@EvaluateReaction, Driving::class.java)
-            startActivity(intentToDrive)
+            if(!testStarted && !inWaitingTime) {
+                // Intent in order to go to the driving activity
+                val intentToDrive = Intent(this@EvaluateReaction, Driving::class.java)
+                startActivity(intentToDrive)
+            }
         }
 
         indicButton.setOnClickListener {
-            // Intent in order to go the the indications activity
-            val intentToIndications = Intent(this@EvaluateReaction, Indications::class.java)
-            startActivity(intentToIndications)
+            if(!testStarted && !inWaitingTime) {
+                // Intent in order to go the the indications activity
+                val intentToIndications = Intent(this@EvaluateReaction, Indications::class.java)
+                startActivity(intentToIndications)
+            }
         }
+    }
+
+
+    suspend fun makeReactivityTest()
+    {
+        val mStartButton: Button = findViewById(R.id.start_button)
+        val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
+        val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
+        val driveButton : Button = findViewById(R.id.drive_button)
+        val indicButton : Button = findViewById(R.id.indication_button)
+        val title: TextView = findViewById(R.id.title)
+        testStarted = true
+        inWaitingTime = true
+        // Everything invisible
+        driveButton.visibility = View.INVISIBLE
+        mStartButton.visibility = View.INVISIBLE
+        indicButton.visibility = View.INVISIBLE
+        var randomTime = Random.nextInt(2000, 8000)
+        val value = GlobalScope.async {
+            delay(randomTime.toLong())
+        }
+        value.await()
+        inWaitingTime = false
+        // Setting the background color to red.
+        layoutReaction.setBackgroundColor(Color.RED)
+        startingTime = System.currentTimeMillis()
+        textEvaluate.visibility = View.INVISIBLE
+        title.visibility = View.INVISIBLE
     }
 }

@@ -151,18 +151,19 @@
 
         <Button
             android:id="@+id/alcohol_info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="false"
             android:layout_marginRight="5dp"
+            android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             android:text="Infos alcool"/>
 
         <Button
             android:id="@+id/drugs_info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
+            android:layout_gravity="center_horizontal"
             android:layout_weight="1"
             android:text="Infos drogues"/>
 
