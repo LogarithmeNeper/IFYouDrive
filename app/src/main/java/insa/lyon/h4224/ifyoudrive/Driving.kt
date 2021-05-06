@@ -106,6 +106,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var maxSpeed = 1000
     var tts: TextToSpeech? = null
     private var mediaPlayer : MediaPlayer? = null
+    private var requestCompteur = 0
 
     /**
      * Function used when creating the window at the beginning.
@@ -265,9 +266,12 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
-                                doAsync {
-                                    maxSpeed = getSpeedLimit(latitude, longitude)
+                                if (requestCompteur % 10 == 0) {
+                                    doAsync {
+                                        maxSpeed = getSpeedLimit(latitude, longitude)
+                                    }
                                 }
+                                ++requestCompteur
                                 // We don't wait explicitely for the return of maxSpeed to arrive,
                                 // So we use the previous max speed while app is getting the new one
                                 textField.text =
@@ -553,7 +557,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
      */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = tts!!.setLanguage(Locale.FRANCE)
+            val result = tts!!.setLanguage(Locale.CANADA_FRENCH)
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "The Language specified is not supported!")
             }
@@ -565,16 +569,16 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     /**
      * Performing a POST call using a request URL and the data wanted.
      */
-    fun performPostCall(
+    private fun performPostCall(
         requestURL: String?,
         data: String?
     ): String {
         val url: URL
         var response: String = ""
+        url = URL(requestURL)
+        val conn =
+            url.openConnection() as HttpsURLConnection
         try {
-            url = URL(requestURL)
-            val conn =
-                url.openConnection() as HttpURLConnection
             conn.readTimeout = 15000
             conn.connectTimeout = 15000
             conn.requestMethod = "POST"
@@ -587,11 +591,12 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             writer.write(data)
             writer.flush()
             writer.close()
+
             os.close()
             val responseCode = conn.responseCode
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 var line: String?
-                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                val br = conn.inputStream.bufferedReader()
                 while (br.readLine().also { line = it } != null) {
                     response += line
                 }
@@ -600,6 +605,8 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            conn.disconnect()
         }
         return response
     }
@@ -624,14 +631,13 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             <!-- end of auto repair -->
             <print/></osm-script>'
             """
-        var response = ""
         var speedNotFound = true
-
-        response = performPostCall("http://overpass-api.de/api/interpreter", data)
-
+        var response = performPostCall("https://overpass-api.de/api/interpreter", data)
+        /*
         while (response == "") {
             Thread.sleep(1)
         }
+        */
         val factory = XmlPullParserFactory.newInstance()
         factory.isNamespaceAware = true
         val xpp = factory.newPullParser()
