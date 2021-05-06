@@ -40,7 +40,7 @@
             android:name=".Driving"
             android:screenOrientation="portrait"
             android:parentActivityName=".EvaluateReaction"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"/>
     </application>
 
 </manifest>
