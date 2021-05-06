@@ -135,7 +135,10 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
             var splittedline = line.split(",")
             var indV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
             var indH : Int = ((5.028014 - splittedline[1].toDouble())/0.000642).toInt()  // Round down
-            accidentsGrid[460*indV+indH] = true
+            var ind : Int = 460*indV+indH
+            if ((ind >= 0) and (ind < 172040)) {
+                accidentsGrid[ind] = true
+            }
         }
       
         //tts
