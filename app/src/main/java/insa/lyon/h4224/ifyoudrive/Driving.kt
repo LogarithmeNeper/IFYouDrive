@@ -106,6 +106,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var maxSpeed = 1000
     var tts: TextToSpeech? = null
     private var mediaPlayer : MediaPlayer? = null
+    private var requestCompteur = 0
 
     /**
      * Function used when creating the window at the beginning.
@@ -265,9 +266,12 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
-                                doAsync {
-                                    maxSpeed = getSpeedLimit(latitude, longitude)
+                                if (requestCompteur % 10 == 0) {
+                                    doAsync {
+                                        maxSpeed = getSpeedLimit(latitude, longitude)
+                                    }
                                 }
+                                ++requestCompteur
                                 // We don't wait explicitely for the return of maxSpeed to arrive,
                                 // So we use the previous max speed while app is getting the new one
                                 textField.text =
@@ -553,7 +557,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
      */
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = tts!!.setLanguage(Locale.FRANCE)
+            val result = tts!!.setLanguage(Locale.CANADA_FRENCH)
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "The Language specified is not supported!")
             }
@@ -590,7 +594,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             os.close()
             val responseCode = conn.responseCode
-            Log.d("TAG", responseCode.toString())
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 var line: String?
                 val br = conn.inputStream.bufferedReader()
