@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.view.MotionEvent
 import android.widget.*
 
 /**
@@ -21,12 +22,18 @@ class TitlePage : AppCompatActivity() {
         setContentView(R.layout.activity_title_page)
 
         //Thread.sleep(2000)
-        val mTitleButton: Button = findViewById(R.id.title_button)
-
-        mTitleButton.setOnClickListener {
-            // Intent in order to go to the driving activity
-            val intentToTest = Intent(this@TitlePage, AlcoholForm::class.java)
-            startActivity(intentToTest)
+        val layoutTitle : RelativeLayout = findViewById(R.id.title_layout)
+        
+        layoutTitle.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> startApp()
+            }
+            true
         }
     }
+    fun startApp() {
+        val intentToTest = Intent(this@TitlePage, AlcoholForm::class.java)
+        startActivity(intentToTest)
+    }
+
 }
