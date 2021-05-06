@@ -37,7 +37,7 @@
         <activity
             android:name=".Indications"
             android:parentActivityName=".EvaluateRisks"/>
-        <activity 
+        <activity
             android:name=".Driving"
             android:screenOrientation="portrait"
             android:parentActivityName=".EvaluateReaction"

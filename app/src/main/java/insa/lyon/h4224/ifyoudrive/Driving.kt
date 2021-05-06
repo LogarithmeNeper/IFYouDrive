@@ -2,32 +2,35 @@ package insa.lyon.h4224.ifyoudrive
 
 import android.Manifest
 import android.app.Activity
+import android.app.VoiceInteractor
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.Location
-import android.media.AudioManager
-import android.media.MediaPlayer
-import android.os.Build
-import android.os.Bundle
-import android.os.Looper
-import android.os.StrictMode
+import android.os.*
 import android.speech.tts.TextToSpeech
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.view.textclassifier.TextLinks
+import android.view.textclassifier.TextSelection
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textfield.TextInputLayout.END_ICON_CLEAR_TEXT
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.osmdroid.bonuspack.routing.GraphHopperRoadManager
+import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.DelayedMapListener
@@ -44,7 +47,16 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.*
+import java.net.HttpURLConnection
 import java.net.URL
+import javax.net.ssl.HttpsURLConnection
+import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sqrt
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.*
@@ -84,6 +96,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var txtLength: TextView
     private lateinit var txtTime: TextView
     private lateinit var imgRoute: ImageView
+    private var maxSpeed = 1000
     var tts: TextToSpeech? = null
 
     /**
@@ -104,6 +117,17 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Use of template
         setContentView(R.layout.activity_driving)
 
+        val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
+        val reader = cin.bufferedReader()
+
+        // functional for each
+        var points : ArrayList<Pair<Double, Double>> = ArrayList()
+        reader.forEachLine {
+                line ->
+            var splittedline = line.split(",")
+            points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
+        }
+      
         //tts
         tts = TextToSpeech(this, this)
 
@@ -120,6 +144,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         imgRoute = findViewById(R.id.imgRoute)
 
 
+        layoutAddress.endIconMode = END_ICON_CLEAR_TEXT
         // Using the Tilesourcefactory of OSM.
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.addMapListener(DelayedMapListener(object : MapListener {
@@ -189,6 +214,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         fusedLocationClient.requestLocationUpdates(request, object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val textField: TextView = findViewById(R.id.textSpeedDriving)
+
                 // Checking if the location permission is granted, otherwise looping
                 while (ActivityCompat.checkSelfPermission(
                         this@Driving,
@@ -219,8 +245,18 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                             if (tabSpeed.size != 0) {
                                 val meanSpeed = sumSpeed / tabSpeed.size
+                                //maxSpeed = getSpeedLimit(latitude, longitude)
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
+                                /*textField.text = "$maxSpeed km/h"
+                                if(meanSpeed.toInt() > maxSpeed)
+                                {
+                                    textField.setTextColor(Color.RED)
+                                }
+                                else
+                                {
+                                    textField.setTextColor(Color.BLACK)
+                                }*/
                             }
                         }
                         previousLat = latitude
@@ -300,27 +336,59 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                     btnFin.visibility = View.VISIBLE
                     layoutAddress.visibility = View.GONE
                     layoutRouting.visibility = View.VISIBLE
-                    val rn = Calendar.getInstance()
-                    rn.add(Calendar.SECOND, road.mDuration.toInt() + 600) // Je-
-                    txtTime.text = java.lang.String.format(
-                        "%02d",
-                        rn.get(Calendar.HOUR_OF_DAY)
-                    ) + ":" + java.lang.String.format(
-                        "%02d", rn.get(
-                            Calendar.MINUTE
-                        )
-                    )
-                    val distance = road.mNodes.get(0).mLength
-                    if (distance > 1)
-                        txtLength.text = distance.toInt().toString() + "km"
-                    else
-                        txtLength.text = (distance * 1000).toInt().toString() + "m"
-                    imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
-                    synthese(road.mNodes.get(0).mInstructions)
                 }
+                handleRoute(road)
                 map.invalidate()
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * update informations when reaching a node
+     */
+    private fun handleRoute(road: Road) {
+        for (i in road.mNodes.indices) {
+            if (btnFin.visibility != View.VISIBLE)
+                return
+            when (road.mNodes[i].mManeuverType) {
+                1 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_continue))
+                6 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_right))
+                7 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_right))
+                8 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_sharp_right))
+                5 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_sharp_left))
+                4 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_turn_left))
+                3 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_slight_left))
+                24 -> imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_arrived))
+                else -> { imgRoute.setImageDrawable(resources.getDrawable(R.drawable.ic_empty))}
+            }
+            val rn = Calendar.getInstance()
+            var tempsRestant  = 0.0
+            for (j in i..(road.mNodes.size - 1)) {
+                tempsRestant += road.mNodes[j].mDuration
+            }
+            rn.add(Calendar.SECOND, tempsRestant.toInt())
+            txtTime.text = java.lang.String.format(
+                "%02d",
+                rn.get(Calendar.HOUR_OF_DAY)
+            ) + ":" + java.lang.String.format(
+                "%02d", rn.get(
+                    Calendar.MINUTE
+                )
+            )
+            synthese(road.mNodes[i].mInstructions)
+            var distanceNode = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
+            while (btnFin.visibility == View.VISIBLE && road.mNodes[i].mLocation.distanceToAsDouble(GeoPoint(latitude,longitude)) > 10.0) {
+                val distance = GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation)
+                if (distance > 1000)
+                    txtLength.text = (distance / 1000).toInt().toString() + "km"
+                else
+                    txtLength.text = distance.toInt().toString() + "m"
+                if (GeoPoint(latitude, longitude).distanceToAsDouble(road.mNodes[i].mLocation) > distanceNode + 30) {
+                    computeRoute()
+                    return
+                }
             }
         }
     }
@@ -338,12 +406,11 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
      */
     fun routeDone() {
         btnFin.visibility = View.INVISIBLE
+        txtAddress.text.clear()
         layoutAddress.visibility = View.VISIBLE
         layoutRouting.visibility = View.GONE
-
         map.overlays.remove(roadOverlay)
         map.invalidate()
-        txtAddress.text.clear()
     }
 
     /**
@@ -409,5 +476,106 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         } else {
             Log.e("TTS", "Initialization Failed!")
         }
+    }
+
+    fun performPostCall(
+        requestURL: String?,
+        data: String?
+    ): String {
+        val url: URL
+        var response: String = ""
+        try {
+            url = URL(requestURL)
+            val conn =
+                url.openConnection() as HttpURLConnection
+            conn.readTimeout = 15000
+            conn.connectTimeout = 15000
+            conn.requestMethod = "POST"
+            conn.doInput = true
+            conn.doOutput = true
+            val os = conn.outputStream
+            val writer = BufferedWriter(
+                OutputStreamWriter(os, "UTF-8")
+            )
+            writer.write(data)
+            writer.flush()
+            writer.close()
+            os.close()
+            val responseCode = conn.responseCode
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                var line: String?
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                while (br.readLine().also { line = it } != null) {
+                    response += line
+                }
+            } else {
+                response = ""
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return response
+    }
+
+    fun getSpeedLimit (latitude : Double, longitude : Double) : Int
+    {
+        var maxSpeed = 1000
+        var maxSpeedObtained = false
+        doAsync {
+            val data: String = """
+            <query type="way">
+                <around radius="10" lat="${latitude}" lon="${longitude}" />
+                <has-kv k="maxspeed" />
+            </query>
+
+            <!-- added by auto repair -->
+            <union>
+                <item/>
+                <recurse type="down"/>
+            </union>
+            <!-- end of auto repair -->
+            <print/></osm-script>'
+            """
+            var response = ""
+            var speedNotFound = true
+
+            response = performPostCall("http://overpass-api.de/api/interpreter", data)
+
+            while (response == "") {
+                Thread.sleep(1)
+            }
+            val factory = XmlPullParserFactory.newInstance()
+            factory.isNamespaceAware = true
+            val xpp = factory.newPullParser()
+
+            xpp.setInput(StringReader(response))
+            var eventType = xpp.eventType
+            while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (xpp.name == "way") {
+                        while (speedNotFound && eventType != XmlPullParser.END_DOCUMENT) {
+                            if (eventType == XmlPullParser.START_TAG) {
+                                if (xpp.name == "tag") {
+                                    if (xpp.getAttributeValue(0) == "maxspeed") {
+                                        maxSpeed = (xpp.getAttributeValue(1).toString()).toInt()
+                                        speedNotFound = false
+                                        maxSpeedObtained = true
+                                    }
+                                }
+                            }
+                            eventType = xpp.next()
+                        }
+                    }
+                }
+                if (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = xpp.next()
+                }
+            }
+        }
+        /*while(!maxSpeedObtained)
+        {
+            Thread.sleep(1)
+        }*/
+        return maxSpeed
     }
 }
