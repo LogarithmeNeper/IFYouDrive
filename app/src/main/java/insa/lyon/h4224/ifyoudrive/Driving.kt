@@ -130,11 +130,9 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         val accidents_grid : BooleanArray = BooleanArray(172040)
 
         // functional for each
-        // var points : ArrayList<Pair<Double, Double>> = ArrayList()
         reader.forEachLine {
                 line ->
             var splittedline = line.split(",")
-            //points.add(Pair(splittedline[0].toDouble(), splittedline[1].toDouble()))
             var indV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
             var indH : Int = ((5.028014 - splittedline[0].toDouble())/0.000642).toInt()  // Round down
             accidents_grid[460*indV+indH] = true
@@ -301,20 +299,18 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                         }
                         if (dangerZoneState == 0) {
                             when(previousDangerZoneState) {
-                                2 -> {} //"Vous sortez d'une zone de danger"
-                                3 -> {} //"Vous sortez d'une zone de danger"
+                                2 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                3 -> { tts!!.speak("Vous sortez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                             }
                         } else if (dangerZoneState == 1) {
                             when(previousDangerZoneState) {
-                                0 -> {} //"Vous approchez d'une zone de danger"
+                                0 -> { tts!!.speak("Vous approchez d'une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                                 2 -> dangerZoneState = 3
                             }
                         } else {
                             when (previousDangerZoneState) {
-                                0 -> {
-                                } //"Vous entrez dans une zone de danger"
-                                1 -> {
-                                } //"Vous entrez dans une zone de danger"
+                                0 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
+                                1 -> { tts!!.speak("Vous entrez dans une zone de danger", TextToSpeech.QUEUE_FLUSH, null) }
                             }
                         }
 
