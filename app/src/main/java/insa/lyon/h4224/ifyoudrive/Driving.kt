@@ -258,7 +258,6 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 // So we use the previous max speed while app is getting the new one
                                 textField.text =
                                     "${meanSpeed.toInt()} km/h"
-                                //textField.text = "$maxSpeed km/h"
                                 if(meanSpeed.toInt() > maxSpeed)
                                 {
                                     textField.setTextColor(Color.RED)

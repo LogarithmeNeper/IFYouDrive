@@ -31,9 +31,6 @@
 
         </activity>
         <activity
-            android:name=".EvaluateReaction"
-            android:parentActivityName=".EvaluateRisks" />
-        <activity
             android:name=".EvaluateRisks"
             android:parentActivityName=".AlcoholForm" />
         <activity
