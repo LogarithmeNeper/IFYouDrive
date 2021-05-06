@@ -127,15 +127,15 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         val cin : InputStream = assets.open("clusterized_accidents_2017_2018_2019_lyon.csv")
         val reader = cin.bufferedReader()
 
-        val accidents_grid : BooleanArray = BooleanArray(172040)
+        val accidentsGrid : BooleanArray = BooleanArray(172040)
 
         // functional for each
         reader.forEachLine {
                 line ->
             var splittedline = line.split(",")
             var indV : Int = ((45.832835 - splittedline[0].toDouble())/0.000452).toInt() // Round down
-            var indH : Int = ((5.028014 - splittedline[0].toDouble())/0.000642).toInt()  // Round down
-            accidents_grid[460*indV+indH] = true
+            var indH : Int = ((5.028014 - splittedline[1].toDouble())/0.000642).toInt()  // Round down
+            accidentsGrid[460*indV+indH] = true
         }
       
         //tts
@@ -274,25 +274,25 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
                         indexH = ((5.028014 - longitude)/0.000642).toInt()  // Round down
                         if (indexH > previousIndH) {
                             if (indexV < previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,3,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,3,accidentsGrid)
                             } else if (indexV > previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,8,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,8,accidentsGrid)
                             } else {
-                                dangerZoneState = testZone(indexV*460+indexH,5,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,5,accidentsGrid)
                             }
                         } else if (indexH < previousIndH) {
                             if (indexV < previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,1,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,1,accidentsGrid)
                             } else if (indexV > previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,6,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,6,accidentsGrid)
                             } else {
-                                dangerZoneState = testZone(indexV*460+indexH,4,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,4,accidentsGrid)
                             }
                         } else {
                             if (indexV < previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,2,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,2,accidentsGrid)
                             } else if (indexV > previousIndV) {
-                                dangerZoneState = testZone(indexV*460+indexH,7,accidents_grid)
+                                dangerZoneState = testZone(indexV*460+indexH,7,accidentsGrid)
                             } else {
                                 dangerZoneState = previousDangerZoneState
                             }
