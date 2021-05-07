@@ -66,12 +66,14 @@ class EvaluateReaction : AppCompatActivity() {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un temps de réponse un peu lent, il pourrait être plus judicieux " +
                             "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le " +
                             "fonctionnement de la navigation en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
+                    driveButton.setBackgroundColor(Color.YELLOW)
                 }
                 else
                 {
                     textEvaluate.text = "Votre temps de réponse est de ${delta} ms. C'est un temps de réponse lent, il vous est fortement déconseillé de prendre le volant." +
                             "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le fonctionnement de la navigation " +
                             "en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
+                    driveButton.setBackgroundColor(Color.RED)
                 }
 
                 // Setting everything visible

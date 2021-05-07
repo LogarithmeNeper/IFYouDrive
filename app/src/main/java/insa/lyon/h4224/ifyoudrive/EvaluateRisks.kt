@@ -1,6 +1,7 @@
 package insa.lyon.h4224.ifyoudrive
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -47,16 +48,19 @@ class EvaluateRisks : AppCompatActivity() {
             risksAlcoholField.text = "Votre alcoolémie est estimée supérieure au seuil autorisé (dans votre cas, ${threshold} g/L dans le sang). " +
                     "Conduire dans cet état constitue une contravention passible d'une amende de 135€ majorable, du retrait de 6 points sur le permis " +
                     "de conduire, et d'une immobilisation du véhicule."
+            skipToDrive.setBackgroundColor(Color.RED)
         }
         else if(estimation > 0.8) {
             risksAlcoholField.text = "Votre alcoolémie est estimée très supérieure au seuil autorisé. Conduire dans cet état constitue un " +
                     "délit passible du retrait de 6 points sur le permis de conduire, d'une amende de 4 500€, d'une peine d'emprisonnement " +
                     "de deux ans maximum, d'une suspension, voire d'un retrait, du permis pour une durée de trois ans maximum, etc..."
+            skipToDrive.setBackgroundColor(Color.RED)
         }
 
         if(drugsEvaluation) {
             risksDrugsField.text = "La conduite sous l'emprise de stupéfiants constitue un délit passible de 4500€ d'amende, d'une peine de 2 ans " +
                     "de prison, ainsi que d'un retrait de 6 points sur le permis de conduire. Il peut aussi entraîner la suspension ou l'annulation du permis de conduire."
+            skipToDrive.setBackgroundColor(Color.RED)
         }
 
         // Intenting to test the user reactivity
