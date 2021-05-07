@@ -360,9 +360,7 @@ class Driving : AppCompatActivity(), TextToSpeech.OnInitListener {
         txtAddress.setOnKeyListener(object : View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent): Boolean {
                 // if the event is a key down event on the enter button
-                if (event.action == KeyEvent.ACTION_DOWN ||
-                    keyCode == KeyEvent.KEYCODE_ENTER
-                ) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     // perform action on key press
                     doAsync {
                         route =
