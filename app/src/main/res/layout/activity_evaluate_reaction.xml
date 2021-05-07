@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_reaction"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".EvaluateReaction"
     android:orientation="vertical">
 
@@ -14,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
+        android:layout_marginBottom="10dp"
         android:textSize="23sp"
         android:text="Test de la réactivité du conducteur"/>
 
@@ -23,7 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
+        android:layout_below="@id/title"
         android:text="Appuyez sur le bouton Commencer quand vous serez prêts à passer le test.\nAttendez quelques secondes, et soyez prêts à cliquer n'importe où sur l'écran lorsque celui-ci deviendra rouge."/>
 
     <Button
@@ -32,7 +34,26 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
+        android:layout_below="@id/text_test_reactivity"
+        android:layout_centerHorizontal="true"
         android:text="Commencer"/>
+
+    <View
+        android:id="@+id/reac_line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/design_default_color_primary_dark"
+        android:layout_above="@id/indic_text"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/indic_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/indication_button"
+        android:layout_marginVertical="10dp"
+        android:visibility="invisible"
+        android:text=""/>
 
     <Button
         android:id="@+id/indication_button"
@@ -40,6 +61,8 @@
         android:layout_height="wrap_content"
         android:visibility="invisible"
         android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/drive_button"
         android:text="indications"/>
 
     <Button
@@ -48,6 +71,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:text="Drive me !"/>
 
-</LinearLayout>
+</RelativeLayout>

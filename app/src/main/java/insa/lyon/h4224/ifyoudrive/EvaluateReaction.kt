@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -36,10 +37,14 @@ class EvaluateReaction : AppCompatActivity() {
         // Getting the necessary information.
         val mStartButton: Button = findViewById(R.id.start_button)
         val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
-        val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
+        val layoutReaction : RelativeLayout = findViewById(R.id.layout_reaction)
         val driveButton : Button = findViewById(R.id.drive_button)
         val indicButton : Button = findViewById(R.id.indication_button)
         val title: TextView = findViewById(R.id.title)
+        val line : View = findViewById(R.id.reac_line)
+        val indicTest : TextView = findViewById(R.id.indic_text)
+
+        indicTest.text = "Pour obtenir des informations sur le fonctionnement de la navigation, appuyez sur Indications. Pour lancer la navigation, appuyez sur Drive Me."
 
         // Listener for starting the activity
         mStartButton.setOnClickListener {
@@ -58,21 +63,19 @@ class EvaluateReaction : AppCompatActivity() {
                 if(delta <= 500)
                 {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un bon temps de réponse. \n" +
-                            "Vous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le fonctionnement de la navigation " +
-                            "en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
+                            "Si vous le souhaitez, vous pouvez relancer un test en appuyant sur le bouton Nouveau Test."
+                    driveButton.setBackgroundColor(resources.getColor(R.color.design_default_color_primary))
                 }
                 else if(delta in 501..800)
                 {
                     textEvaluate.text = "Votre temps de réactivité est de ${delta} ms. C'est un temps de réponse un peu lent, il pourrait être plus judicieux " +
-                            "de ne pas prendre le volant. \nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le " +
-                            "fonctionnement de la navigation en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
-                    driveButton.setBackgroundColor(Color.YELLOW)
+                            "de ne pas prendre le volant. \nSi vous le souhaitez, vous pouvez relancer un test en appuyant sur le bouton Nouveau Test."
+                    driveButton.setBackgroundColor(Color.rgb(0xFF, 0x66, 0x00))
                 }
                 else
                 {
                     textEvaluate.text = "Votre temps de réponse est de ${delta} ms. C'est un temps de réponse lent, il vous est fortement déconseillé de prendre le volant." +
-                            "\nVous pouvez relancer un test en appuyant sur le bouton Nouveau Test, obtenir des informations sur le fonctionnement de la navigation " +
-                            "en appuyant sur Indications, ou lancer la navigation en appuyant sur le bouton Drive Me."
+                            "\nSi vous le souhaitez, vous pouvez relancer un test en appuyant sur le bouton Nouveau Test."
                     driveButton.setBackgroundColor(Color.RED)
                 }
 
@@ -85,6 +88,8 @@ class EvaluateReaction : AppCompatActivity() {
                 mStartButton.text = "Nouveau test"
                 mStartButton.visibility = View.VISIBLE
                 indicButton.visibility = View.VISIBLE
+                indicTest.visibility = View.VISIBLE
+                line.visibility = View.VISIBLE
             }
             true
         }
@@ -110,16 +115,20 @@ class EvaluateReaction : AppCompatActivity() {
     {
         val mStartButton: Button = findViewById(R.id.start_button)
         val textEvaluate: TextView = findViewById(R.id.text_test_reactivity)
-        val layoutReaction : LinearLayout = findViewById(R.id.layout_reaction)
+        val layoutReaction : RelativeLayout = findViewById(R.id.layout_reaction)
         val driveButton : Button = findViewById(R.id.drive_button)
         val indicButton : Button = findViewById(R.id.indication_button)
         val title: TextView = findViewById(R.id.title)
+        val line : View = findViewById(R.id.reac_line)
+        val indicText : TextView = findViewById(R.id.indic_text)
         testStarted = true
         inWaitingTime = true
         // Everything invisible
         driveButton.visibility = View.INVISIBLE
         mStartButton.visibility = View.INVISIBLE
         indicButton.visibility = View.INVISIBLE
+        line.visibility = View.INVISIBLE
+        indicText.visibility = View.INVISIBLE
         var randomTime = Random.nextInt(2000, 8000)
         val value = GlobalScope.async {
             delay(randomTime.toLong())
