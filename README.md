@@ -28,4 +28,4 @@ Pour installer l'application, il est tout d'abord nécessaire d'installer Androi
 
 ## Vidéo et support
 
-Le support de la présentation et la vidéo de présentation sont disponibles dans le dossier Documents présent à la racine du projet. Bien que la vidéo soit incluse dans le support de présentation, sa visualisation ne pourra pas s'effectuer à partir de celui-ci, mais seulement avec le fichier dédié.
+Le support de la présentation est disponible dans le dossier Docs présent à la racine du projet. Bien que la vidéo soit incluse dans le support de présentation, sa visualisation ne pourra pas s'effectuer à partir de celui-ci. Pour visualiser la vidéo, se rendre sur le dossier Google Drive accessible au lien suivant : https://drive.google.com/drive/folders/13uEfwhHzZheJXmmDTeSbNQGJEDtNUS2L?usp=sharing
