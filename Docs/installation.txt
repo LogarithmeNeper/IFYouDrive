@@ -1,0 +1,7 @@
+Pour installer l'application, il est tout d'abord nécessaire d'installer Android Studio. 
+L'utilisateur peut ensuite choisir entre l'utilisation de l'émulateur proposé par Android Studio et l'utilisation de son propre smartphone Android s'il en possède un. 
+Dans ce dernier cas, l'utilisateur doit tout d'abord activer le déboguage USB sur son téléphone (l'activation du mode développeur est nécessaire, 
+se référer à internet si besoin), puis relier celui-ci à son ordinateur via USB, et enfin confirmer l'activation du déboguage USB qui sera demandée 
+par l'ordinateur. 
+Une fois ces étapes franchies, Android Studio installera l'application sur le téléphone au moment de la lancer. 
+La dernière version de l'application reste ensuite sur le téléphone même une fois celui-ci débranché de l'ordinateur.
